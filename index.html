@@ -1,20 +1,21 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Idear por el gusto de idear</title>
-<meta name="description" content="¿Qué te gustaría que existiera en lo tuyo y no existe? Deja una idea. El 30 de septiembre se publican todas.">
+<title>Ideas for the sake of having them</title>
+<meta name="description" content="What would you like to exist in your world that doesn't? Leave an idea. All of them get published on 30 September.">
 <meta name="robots" content="index, follow">
 
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nserranovasco.github.io/ideas/">
-<meta property="og:title" content="Idear por el gusto de idear">
-<meta property="og:description" content="¿Qué te gustaría que existiera en lo tuyo y no existe? Deja una idea. El 30 de septiembre se publican todas.">
+<meta property="og:title" content="Ideas for the sake of having them">
+<meta property="og:description" content="What would you like to exist in your world that doesn't? Leave an idea. All of them get published on 30 September.">
 <meta property="og:image" content="https://nserranovasco.github.io/ideas/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:locale" content="es_ES">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_ES">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -223,8 +224,8 @@
 
 <div class="col topbar">
   <div class="langs" role="group" aria-label="Idioma / Language">
-    <button type="button" id="lang-es" data-lang="es" aria-pressed="true">ES</button>
-    <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+    <button type="button" id="lang-es" data-lang="es" aria-pressed="false">ES</button>
+    <button type="button" id="lang-en" data-lang="en" aria-pressed="true">EN</button>
   </div>
 </div>
 
@@ -388,13 +389,14 @@
     });
     buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.lang === lang)); });
     root.setAttribute("lang", lang);
+    document.title = lang === "es" ? "Idear por el gusto de idear" : "Ideas for the sake of having them";
   }
   function isES() { return root.getAttribute("lang") === "es"; }
 
   buttons.forEach(function (b) {
     b.addEventListener("click", function () { apply(b.dataset.lang); });
   });
-  apply((navigator.language || "es").toLowerCase().slice(0, 2) === "es" ? "es" : "en");
+  apply("en");
 
   var ta = document.getElementById("idea");
   var counter = document.getElementById("counter");
