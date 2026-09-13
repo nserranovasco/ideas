@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Idear por el gusto de idear</title>
+<meta name="description" content="¿Qué te gustaría que existiera en lo tuyo y no existe? Deja una idea. El 30 de septiembre se publican todas.">
+<meta name="robots" content="index, follow">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nserranovasco.github.io/ideas/">
+<meta property="og:title" content="Idear por el gusto de idear">
+<meta property="og:description" content="¿Qué te gustaría que existiera en lo tuyo y no existe? Deja una idea. El 30 de septiembre se publican todas.">
+<meta property="og:image" content="https://nserranovasco.github.io/ideas/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&display=swap">
+
+<style>
+  :root {
+    --canvas:       #faf9f5;
+    --surface:      #efe9de;
+    --line:         #e8e6dc;
+    --line-strong:  #ddd8cb;
+    --ink:          #141413;
+    --ink-soft:     #5c5a53;
+    --ink-faint:    #85827a;
+    --orange:       #d97757;
+    --orange-deep:  #a9583e;
+    --orange-press: #8f4a34;
+    --green:        #5d6f47;
+    --halo:         rgba(217, 119, 87, 0.28);
+    --r-sm: 8px;
+    --r-md: 12px;
+    --gap-band: clamp(52px, 8vw, 92px);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img { max-width: 100%; }
+
+  .col { max-width: 700px; margin: 0 auto; padding-inline: 22px; }
+
+  .topbar { display: flex; justify-content: flex-end; padding-block: 20px 0; }
+  .langs { display: flex; gap: 4px; }
+  .langs button {
+    appearance: none; background: transparent;
+    border: 1px solid var(--line-strong); color: var(--ink-soft);
+    font-family: inherit; font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+    padding: 5px 11px; border-radius: 999px; cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .langs button:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .langs button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--canvas); }
+  .langs button:focus-visible { outline: 2px solid var(--orange-deep); outline-offset: 2px; }
+
+  header { padding-block: 30px 0; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--ink-soft); background: var(--surface);
+    border-radius: 999px; padding: 6px 14px; margin-bottom: 26px;
+  }
+  .tag .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); flex: none; }
+
+  h1 {
+    font-family: Newsreader, Georgia, "Times New Roman", serif;
+    font-weight: 400; font-size: clamp(2.4rem, 7.4vw, 3.6rem);
+    line-height: 1.08; letter-spacing: -0.022em; text-wrap: balance; margin: 0 0 28px;
+  }
+
+  .lede { display: flex; flex-direction: column; gap: 16px; }
+  .lede p { margin: 0; font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); }
+
+  .band { background: var(--orange); margin-top: var(--gap-band); padding-block: clamp(44px, 7vw, 68px); }
+  .band p {
+    margin: 0; color: #fff;
+    font-family: Newsreader, Georgia, serif; font-weight: 400;
+    font-size: clamp(1.85rem, 5.6vw, 2.65rem);
+    line-height: 1.14; letter-spacing: -0.018em; text-wrap: balance;
+  }
+
+  .after-band { padding-top: 30px; }
+  .after-band p { margin: 0; font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); }
+
+  .sheet { margin-top: 36px; background: var(--surface); border-radius: var(--r-md); padding: clamp(22px, 4vw, 34px); }
+
+  form { display: flex; flex-direction: column; gap: 26px; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+
+  .lbl {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink);
+  }
+  .lbl .opt { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 12.5px; color: var(--ink-faint); }
+
+  input[type="text"], textarea {
+    width: 100%; font-family: inherit; font-size: 1rem; line-height: 1.55; color: var(--ink);
+    background: var(--canvas); border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+    padding: 11px 14px; transition: border-color .15s, box-shadow .15s;
+  }
+  textarea { min-height: 156px; resize: vertical; }
+  input[type="text"]::placeholder, textarea::placeholder { color: var(--ink-faint); }
+  input[type="text"]:focus-visible, textarea:focus-visible {
+    outline: none; border-color: var(--orange-deep); box-shadow: 0 0 0 3px var(--halo);
+  }
+  input.invalid, textarea.invalid { border-color: var(--orange-deep); }
+
+  .help { margin: 0; font-size: 0.8125rem; line-height: 1.5; color: var(--ink-faint); }
+  .counter {
+    align-self: flex-end; font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11px; font-variant-numeric: tabular-nums; color: var(--ink-faint);
+  }
+
+  .consent { display: flex; flex-direction: column; gap: 16px; padding-top: 24px; border-top: 1px solid var(--line-strong); }
+  .consent-head { margin: 0; font-size: 12px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink); }
+  .check { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; cursor: pointer; }
+  .check input {
+    appearance: none; width: 18px; height: 18px; margin: 2px 0 0;
+    border: 1px solid var(--line-strong); border-radius: 4px; background: var(--canvas);
+    cursor: pointer; display: grid; place-content: center; transition: background .15s, border-color .15s;
+  }
+  .check input::after {
+    content: ""; width: 10px; height: 10px; transform: scale(0); transition: transform .12s ease-out;
+    box-shadow: inset 1em 1em #fff;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+  .check input:checked { background: var(--orange); border-color: var(--orange); }
+  .check input:checked::after { transform: scale(1); }
+  .check input:focus-visible { outline: 2px solid var(--orange-deep); outline-offset: 2px; }
+  .check span { font-size: 0.9375rem; line-height: 1.5; }
+  .check .sub { display: block; font-size: 0.8125rem; color: var(--ink-faint); margin-top: 3px; }
+
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+  .send {
+    appearance: none; border: 0; background: var(--orange-deep); color: var(--canvas);
+    font-family: inherit; font-size: 14px; font-weight: 500; letter-spacing: 0.01em;
+    height: 42px; padding-inline: 24px; border-radius: var(--r-sm); cursor: pointer;
+    transition: background .15s;
+  }
+  .send:hover:not(:disabled) { background: var(--orange-press); }
+  .send:disabled { opacity: .6; cursor: default; }
+  .send:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .note { margin: 0; font-size: 0.8125rem; font-weight: 500; color: var(--orange-deep); }
+
+  .thanks { display: none; }
+  .thanks h2 {
+    margin: 0 0 14px; font-family: Newsreader, Georgia, serif; font-weight: 400;
+    font-size: 1.75rem; letter-spacing: -0.014em;
+  }
+  .thanks p { margin: 0 0 12px; font-size: 0.9375rem; line-height: 1.65; color: var(--ink-soft); }
+  .thanks p:last-child { margin-bottom: 0; }
+  .thanks .tick {
+    display: inline-grid; place-content: center;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--green); margin-bottom: 16px;
+  }
+  .thanks .tick::after {
+    content: ""; width: 15px; height: 15px; box-shadow: inset 1em 1em #fff;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+  body.sent form { display: none; }
+  body.sent .thanks { display: block; }
+
+  .privacy { margin-top: var(--gap-band); padding-top: 28px; border-top: 1px solid var(--line); }
+  .privacy h2 {
+    margin: 0 0 18px; font-family: Newsreader, Georgia, serif; font-weight: 400;
+    font-size: 1.5rem; letter-spacing: -0.012em;
+  }
+  .privacy ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .privacy li {
+    display: grid; grid-template-columns: auto 1fr; gap: 12px;
+    font-size: 0.9375rem; line-height: 1.6; color: var(--ink-soft);
+  }
+  .privacy li::before { content: ""; width: 6px; height: 6px; margin-top: 9px; border-radius: 50%; background: var(--line-strong); }
+  a.inline { color: var(--orange-deep); text-decoration: underline; text-underline-offset: 2px; }
+  a.inline:hover { color: var(--orange-press); }
+
+  .aside-box { margin-top: 44px; background: var(--surface); border-radius: var(--r-md); padding: clamp(22px, 4vw, 32px); }
+  .aside-box h2 {
+    margin: 0 0 16px; font-family: Newsreader, Georgia, serif; font-weight: 400;
+    font-size: 1.5rem; letter-spacing: -0.012em;
+  }
+  .aside-box p { margin: 0 0 13px; font-size: 0.9375rem; line-height: 1.65; color: var(--ink-soft); }
+  .aside-box p:last-child { margin-bottom: 0; }
+  .aside-box p.wink {
+    margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-strong);
+    font-style: italic; font-size: 0.875rem; color: var(--ink-faint);
+  }
+
+  footer {
+    margin-top: 52px; padding-block: 22px 60px; border-top: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px; letter-spacing: 0.03em; color: var(--ink-faint);
+  }
+  footer a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
+  footer a:hover { color: var(--orange-deep); border-color: var(--orange-deep); }
+
+  .hp { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="col topbar">
+  <div class="langs" role="group" aria-label="Idioma / Language">
+    <button type="button" id="lang-es" data-lang="es" aria-pressed="true">ES</button>
+    <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+  </div>
+</div>
+
+<header class="col">
+  <span class="tag">
+    <span class="dot" aria-hidden="true"></span>
+    <span data-es="Abierto hasta el 30 de septiembre" data-en="Open until 30 September">Abierto hasta el 30 de septiembre</span>
+  </span>
+
+  <h1 data-es="Idear por el gusto de idear" data-en="Ideas for the sake of having them">Idear por el gusto de idear</h1>
+
+  <div class="lede">
+    <p data-es="Esta página existe por curiosidad. No vendo nada y no hay nada detrás." data-en="This page exists out of curiosity. I'm not selling anything and there's nothing behind it.">Esta página existe por curiosidad. No vendo nada y no hay nada detrás.</p>
+    <p data-es="Tú dejas una idea, yo las junto todas y el 30 de septiembre las publico. Así no solo aportas la tuya: también ves las de los demás, y si alguna te llama, puedes hablar con quien la escribió." data-en="You leave an idea, I gather them all, and on 30 September I publish them. So you don't just contribute yours: you get to see everyone else's, and if one catches your eye, you can talk to whoever wrote it.">Tú dejas una idea, yo las junto todas y el 30 de septiembre las publico. Así no solo aportas la tuya: también ves las de los demás, y si alguna te llama, puedes hablar con quien la escribió.</p>
+  </div>
+</header>
+
+<section class="band">
+  <div class="col">
+    <p data-es="¿Qué te gustaría que existiera en lo tuyo y no existe?" data-en="What would you like to exist in your world that doesn't?">¿Qué te gustaría que existiera en lo tuyo y no existe?</p>
+  </div>
+</section>
+
+<div class="col after-band">
+  <p data-es="Puede ser algo enorme o una tontería que te ahorraría una tarde a la semana. No tiene que ser una idea para dominar el mundo. Puede ser simplemente una idea que mejore tu mundo." data-en="It can be something huge, or a small annoyance that costs you an afternoon a week. It doesn't have to be an idea that changes the world. It can just be an idea that improves yours.">Puede ser algo enorme o una tontería que te ahorraría una tarde a la semana. No tiene que ser una idea para dominar el mundo. Puede ser simplemente una idea que mejore tu mundo.</p>
+</div>
+
+<div class="col">
+  <div class="sheet">
+
+    <form id="idea-form" novalidate>
+      <div class="hp" aria-hidden="true">
+        <label for="botcheck">No rellenar</label>
+        <input type="checkbox" name="botcheck" id="botcheck" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="idea"><span data-es="Tu idea" data-en="Your idea">Tu idea</span></label>
+        <textarea id="idea" name="idea" required
+          data-es-ph="Escríbela como te salga. No hace falta que esté pulida ni que sepas si se puede hacer."
+          data-en-ph="Write it however it comes out. It doesn't need to be polished, and you don't need to know whether it's possible."
+          placeholder="Escríbela como te salga. No hace falta que esté pulida ni que sepas si se puede hacer."></textarea>
+        <span class="counter" id="counter">0</span>
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="campo">
+          <span data-es="¿De qué campo vienes?" data-en="What field are you coming from?">¿De qué campo vienes?</span>
+          <span class="opt" data-es="opcional" data-en="optional">opcional</span>
+        </label>
+        <input type="text" id="campo" name="campo"
+          data-es-ph="Psicología, un taller, sanidad, un aula, ingeniería, lo que sea"
+          data-en-ph="Psychology, a workshop, healthcare, a classroom, engineering, anything"
+          placeholder="Psicología, un taller, sanidad, un aula, ingeniería, lo que sea">
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="nombre">
+          <span data-es="Nombre" data-en="Name">Nombre</span>
+          <span class="opt" data-es="opcional" data-en="optional">opcional</span>
+        </label>
+        <input type="text" id="nombre" name="nombre"
+          data-es-ph="Déjalo en blanco si prefieres ser anónimo"
+          data-en-ph="Leave it blank if you'd rather stay anonymous"
+          placeholder="Déjalo en blanco si prefieres ser anónimo">
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="contacto">
+          <span data-es="Contacto o LinkedIn" data-en="Contact or LinkedIn">Contacto o LinkedIn</span>
+          <span class="opt" data-es="opcional" data-en="optional">opcional</span>
+        </label>
+        <input type="text" id="contacto" name="contacto"
+          data-es-ph="Correo, LinkedIn, lo que uses"
+          data-en-ph="Email, LinkedIn, whatever you use"
+          placeholder="Correo, LinkedIn, lo que uses">
+        <p class="help" data-es="Solo si quieres que pueda escribirte. Si lo dejas vacío, tu idea cuenta exactamente igual." data-en="Only if you want me to be able to reach you. Leave it empty and your idea counts exactly the same.">Solo si quieres que pueda escribirte. Si lo dejas vacío, tu idea cuenta exactamente igual.</p>
+      </div>
+
+      <div class="consent">
+        <p class="consent-head" data-es="Tú decides qué sale a la luz" data-en="You decide what goes public">Tú decides qué sale a la luz</p>
+
+        <label class="check" for="c-idea">
+          <input type="checkbox" id="c-idea" name="publicar_idea" value="Sí">
+          <span data-es="Publica mi idea el 30 de septiembre" data-en="Publish my idea on 30 September">Publica mi idea el 30 de septiembre</span>
+        </label>
+
+        <label class="check" for="c-nombre">
+          <input type="checkbox" id="c-nombre" name="publicar_contacto" value="Sí">
+          <span>
+            <span data-es="Publica también mi nombre y mi contacto" data-en="Publish my name and contact too">Publica también mi nombre y mi contacto</span>
+            <span class="sub" data-es="Para que quien lea tu idea pueda encontrarte." data-en="So whoever reads your idea can find you.">Para que quien lea tu idea pueda encontrarte.</span>
+          </span>
+        </label>
+
+        <label class="check" for="c-contacto">
+          <input type="checkbox" id="c-contacto" name="permite_contacto" value="Sí">
+          <span data-es="Puedes escribirme si tienes dudas sobre mi idea" data-en="You can write to me if you have questions about my idea">Puedes escribirme si tienes dudas sobre mi idea</span>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="send" id="send" data-es="Enviar idea" data-en="Send idea">Enviar idea</button>
+        <p class="note" id="note" hidden></p>
+      </div>
+    </form>
+
+    <div class="thanks" id="thanks" role="status">
+      <span class="tick" aria-hidden="true"></span>
+      <h2 data-es="Recibida. Gracias." data-en="Received. Thank you.">Recibida. Gracias.</h2>
+      <p data-es="Tu idea ya está en mi correo. La leeré, como todas." data-en="Your idea is in my inbox. I'll read it, like all the others.">Tu idea ya está en mi correo. La leeré, como todas.</p>
+      <p data-es="El 30 de septiembre publico las ideas de quienes hayan querido hacerlas públicas. Si marcaste esa casilla, la tuya estará ahí." data-en="On 30 September I'll publish the ideas from everyone who chose to make theirs public. If you ticked that box, yours will be there.">El 30 de septiembre publico las ideas de quienes hayan querido hacerlas públicas. Si marcaste esa casilla, la tuya estará ahí.</p>
+    </div>
+
+  </div>
+</div>
+
+<section class="col privacy">
+  <h2 data-es="Qué pasa con lo que envías" data-en="What happens to what you send">Qué pasa con lo que envías</h2>
+  <ul>
+    <li data-es="Llega a mi correo. No se publica nada de forma automática." data-en="It reaches my inbox. Nothing is published automatically.">Llega a mi correo. No se publica nada de forma automática.</li>
+    <li data-es="Si no marcas las casillas, tu idea no se publica y tu nombre tampoco." data-en="If you don't tick the boxes, neither your idea nor your name is published.">Si no marcas las casillas, tu idea no se publica y tu nombre tampoco.</li>
+    <li data-es="La idea sigue siendo tuya. No me comprometo a construir nada." data-en="The idea stays yours. I'm not promising to build anything.">La idea sigue siendo tuya. No me comprometo a construir nada.</li>
+    <li data-es="El formulario viaja a través de Web3Forms, que hace de intermediario hasta mi correo." data-en="The form travels through Web3Forms, which acts as an intermediary to my inbox.">El formulario viaja a través de Web3Forms, que hace de intermediario hasta mi correo.</li>
+    <li>
+      <span><span data-es="¿Quieres que lo borre? Escríbeme y lo borro, sin preguntar por qué:" data-en="Want it deleted? Write to me and I'll delete it, no questions asked:">¿Quieres que lo borre? Escríbeme y lo borro, sin preguntar por qué:</span> <a class="inline" id="mailto" href="mailto:nserranovasco@gmail.com">nserranovasco@gmail.com</a></span>
+    </li>
+    <li data-es="No envíes información confidencial ni nada que quieras patentar." data-en="Please don't send confidential information or anything you intend to patent.">No envíes información confidencial ni nada que quieras patentar.</li>
+  </ul>
+</section>
+
+<section class="col">
+  <div class="aside-box">
+    <h2 data-es="¿No sabes qué es Claude?" data-en="Not sure what Claude is?">¿No sabes qué es Claude?</h2>
+    <p data-es="Es una inteligencia artificial, de la misma familia que ChatGPT. Lo que la hace relevante aquí es que no solo escribe texto: también construye cosas. Programas pequeños, páginas, herramientas que hacen un trabajo concreto, a partir de una descripción en lenguaje normal." data-en="It's an artificial intelligence, the same family as ChatGPT. What makes it relevant here is that it doesn't only write text: it also builds things. Small programs, pages, tools that do one specific job, starting from a description in plain language.">Es una inteligencia artificial, de la misma familia que ChatGPT. Lo que la hace relevante aquí es que no solo escribe texto: también construye cosas. Programas pequeños, páginas, herramientas que hacen un trabajo concreto, a partir de una descripción en lenguaje normal.</p>
+    <p data-es="Y por eso pregunto. Hace unos años, para que una idea pequeña existiera hacía falta un equipo y varios meses. Hoy muchas caben en una tarde. Lo difícil ya no es construirlas: es que se le ocurran a alguien que conozca de verdad el problema." data-en="Which is why I'm asking. A few years ago, making a small idea real took a team and several months. Today many of them fit into an afternoon. The hard part is no longer building them: it's that they have to occur to someone who actually knows the problem.">Y por eso pregunto. Hace unos años, para que una idea pequeña existiera hacía falta un equipo y varios meses. Hoy muchas caben en una tarde. Lo difícil ya no es construirlas: es que se le ocurran a alguien que conozca de verdad el problema.</p>
+    <p data-es="No trabajo para ellos y nadie me paga por contar esto." data-en="I don't work for them and nobody is paying me to say this.">No trabajo para ellos y nadie me paga por contar esto.</p>
+    <p class="wink" data-es="(Si te lo estás preguntando: sí, parte de este último cuadro lo escribió una IA. A veces escribe mejor que yo.)" data-en="(In case you're wondering: yes, part of this last box was written by an AI. Sometimes it writes better than I do.)">(Si te lo estás preguntando: sí, parte de este último cuadro lo escribió una IA. A veces escribe mejor que yo.)</p>
+  </div>
+</section>
+
+<footer class="col">
+  <span>Nicolás Serrano · Leganés, Madrid</span>
+  <span data-es="Cierra el 30 de septiembre de 2026" data-en="Closes 30 September 2026">Cierra el 30 de septiembre de 2026</span>
+</footer>
+
+<script>
+(function () {
+  var ACCESS_KEY = "23a54d5c-9391-47ba-b79a-7aee7dd61c70";
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll(".langs button");
+
+  function apply(lang) {
+    document.querySelectorAll("[data-es]").forEach(function (el) {
+      var v = el.getAttribute("data-" + lang);
+      if (v !== null) el.textContent = v;
+    });
+    document.querySelectorAll("[data-es-ph]").forEach(function (el) {
+      var v = el.getAttribute("data-" + lang + "-ph");
+      if (v !== null) el.setAttribute("placeholder", v);
+    });
+    buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.lang === lang)); });
+    root.setAttribute("lang", lang);
+  }
+  function isES() { return root.getAttribute("lang") === "es"; }
+
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () { apply(b.dataset.lang); });
+  });
+  apply((navigator.language || "es").toLowerCase().slice(0, 2) === "es" ? "es" : "en");
+
+  var ta = document.getElementById("idea");
+  var counter = document.getElementById("counter");
+  ta.addEventListener("input", function () {
+    counter.textContent = String(ta.value.length);
+    ta.classList.remove("invalid");
+  });
+
+  var form = document.getElementById("idea-form");
+  var btn = document.getElementById("send");
+  var note = document.getElementById("note");
+
+  function say(msg) { note.textContent = msg; note.hidden = false; }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    note.hidden = true;
+
+    if (!ta.value.trim()) {
+      ta.classList.add("invalid");
+      ta.focus();
+      say(isES() ? "Escribe tu idea antes de enviar." : "Write your idea before sending.");
+      return;
+    }
+
+    var fd = new FormData(form);
+    var payload = {
+      access_key: ACCESS_KEY,
+      subject: "Nueva idea — " + (fd.get("campo") || (isES() ? "sin campo" : "no field")),
+      from_name: "Idear por el gusto de idear",
+      idea: fd.get("idea"),
+      campo: fd.get("campo") || "—",
+      nombre: fd.get("nombre") || (isES() ? "(anónimo)" : "(anonymous)"),
+      contacto: fd.get("contacto") || "—",
+      publicar_idea: fd.get("publicar_idea") || "No",
+      publicar_contacto: fd.get("publicar_contacto") || "No",
+      permite_contacto: fd.get("permite_contacto") || "No",
+      idioma: isES() ? "ES" : "EN",
+      botcheck: fd.get("botcheck") ? true : false
+    };
+
+    btn.disabled = true;
+    btn.textContent = isES() ? "Enviando…" : "Sending…";
+
+    fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.success) {
+          document.body.classList.add("sent");
+          document.getElementById("thanks").scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          throw new Error("web3forms");
+        }
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = isES() ? "Enviar idea" : "Send idea";
+        say(isES()
+          ? "No se ha podido enviar. Inténtalo otra vez, o escríbeme por LinkedIn y me la cuentas por ahí."
+          : "It couldn't be sent. Try again, or write to me on LinkedIn and tell me there.");
+      });
+  });
+})();
+</script>
+</body>
+</html>
