@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de cohetes</title>
+<style>
+:root{
+  --bg:#faf9f5; --surface:#efe9de; --ink:#141413; --muted:#5c5a53;
+  --accent:#d97757; --accent-dk:#a9583e; --green:#55693f;
+  --amber:#c08a1c; --red:#b3362b; --line:#ddd5c6; --paper:#fffdf8;
+  --serif:'Newsreader', Georgia, 'Times New Roman', serif;
+  --sans:'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.45; -webkit-text-size-adjust:100%}
+.app{max-width:1240px; margin:0 auto; padding:20px 16px 40px}
+
+/* Cabecera */
+header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 24px; margin-bottom:14px}
+.kicker{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:500}
+h1{font-family:var(--serif); font-weight:500; font-size:clamp(28px,4.2vw,40px); line-height:1.05; margin:4px 0 0; letter-spacing:-.01em}
+.mode{display:inline-flex; background:var(--surface); border-radius:999px; padding:4px; gap:2px}
+.mode button{font:inherit; font-size:14px; font-weight:500; border:0; background:transparent; color:var(--muted); padding:7px 16px; border-radius:999px; cursor:pointer; min-height:36px}
+.mode button[aria-pressed="true"]{background:var(--accent-dk); color:#fff}
+.mode button:focus-visible, select:focus-visible, input:focus-visible, .seg button:focus-visible, summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+.disclaimer{display:flex; gap:10px; align-items:flex-start; border:1px solid var(--accent); background:#fbeee6; color:var(--ink); border-radius:10px; padding:10px 14px; font-size:13.5px; margin-bottom:18px}
+.disclaimer b{color:var(--accent-dk)}
+.disclaimer svg{flex:0 0 auto; margin-top:2px}
+
+/* Maquetación: controles | visualización. En móvil, controles arriba y cohete abajo. */
+.layout{display:grid; grid-template-columns:minmax(300px,370px) minmax(0,1fr); gap:20px; align-items:start}
+.viz{position:sticky; top:12px; min-width:0}
+@media (max-width:860px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .viz{position:static}
+}
+
+/* Controles */
+.controls{display:flex; flex-direction:column; gap:10px; min-width:0}
+details.group{background:var(--surface); border-radius:12px; padding:0 14px}
+details.group > summary{list-style:none; cursor:pointer; padding:12px 0; display:flex; justify-content:space-between; align-items:center; font-family:var(--serif); font-size:19px; font-weight:500}
+details.group > summary::-webkit-details-marker{display:none}
+details.group > summary::after{content:""; width:8px; height:8px; border-right:1.5px solid var(--muted); border-bottom:1.5px solid var(--muted); transform:rotate(45deg); margin-right:4px; transition:transform .15s}
+details.group[open] > summary::after{transform:rotate(-135deg)}
+.group-body{padding:0 0 14px; display:flex; flex-direction:column; gap:12px}
+.field label, .field .lab{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--ink); margin-bottom:4px}
+.field output{font-variant-numeric:tabular-nums; color:var(--accent-dk); font-weight:500; white-space:nowrap}
+.field.disabled{opacity:.45}
+.field.disabled output::after{content:" (auto)"; color:var(--muted); font-weight:400}
+input[type=range]{width:100%; accent-color:var(--accent-dk); margin:0; height:24px}
+select{width:100%; font:inherit; font-size:14.5px; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:8px 32px 8px 10px; min-height:40px; appearance:none; -webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 17px) 50%, calc(100% - 12px) 50%; background-size:5px 5px; background-repeat:no-repeat}
+.note{font-size:12.5px; color:var(--muted); margin:5px 0 0}
+.seg{display:inline-flex; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:3px; gap:3px}
+.seg button{font:inherit; font-size:14px; border:0; background:transparent; color:var(--ink); padding:6px 18px; border-radius:6px; cursor:pointer; min-height:34px}
+.seg button[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
+.dots{letter-spacing:1px; color:var(--accent-dk)}
+.dots i{font-style:normal; color:#cbbfa9}
+
+/* Visualización */
+.card{background:var(--paper); border:1px solid var(--line); border-radius:12px}
+.drawing{padding:10px 8px 8px}
+#svgwrap{width:100%; min-width:0}
+#rocket{display:block; width:100%; height:auto}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; padding:6px 10px 4px; font-size:12.5px; color:var(--muted)}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.legend .sw{width:14px; height:10px; border-radius:2px; display:inline-block}
+.explain{font-size:13px; color:var(--muted); margin:6px 10px 4px}
+
+.results{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px}
+@media (max-width:560px){ .results{grid-template-columns:1fr} }
+.res{padding:14px 16px}
+.stab{display:flex; gap:14px; align-items:flex-start}
+.light{flex:0 0 auto; display:flex; flex-direction:column; gap:6px; background:var(--ink); padding:7px; border-radius:14px}
+.light span{width:18px; height:18px; border-radius:50%; background:#3a3935; transition:background .2s, box-shadow .2s}
+.light .on.red{background:#e0503f; box-shadow:0 0 10px #e0503f}
+.light .on.amber{background:#f0b43a; box-shadow:0 0 10px #f0b43a}
+.light .on.green{background:#8fb05e; box-shadow:0 0 10px #8fb05e}
+.state{font-family:var(--serif); font-size:26px; font-weight:500; line-height:1.1; margin:2px 0 6px}
+.state.red{color:var(--red)} .state.amber{color:#9a6c0e} .state.green{color:var(--green)}
+.res p{margin:0; font-size:14px}
+.big{font-family:var(--serif); font-size:44px; font-weight:500; line-height:1; margin:4px 0 6px; font-variant-numeric:tabular-nums}
+.big small{font-size:22px; color:var(--muted); font-weight:400}
+.sub{font-size:13px; color:var(--muted); margin-top:6px!important}
+.warn{color:var(--red)}
+
+/* Tabla técnica */
+.tech{margin-top:12px; padding:6px 16px 10px}
+.tech h2{font-family:var(--serif); font-weight:500; font-size:22px; margin:8px 0 4px}
+.row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 16px; padding:10px 0; border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row .k{font-weight:500; font-size:14px}
+.row .v{font-variant-numeric:tabular-nums; font-weight:500; text-align:right; white-space:nowrap}
+.row .v .u{color:var(--muted); font-weight:400}
+.row .f{grid-column:1 / -1; font-size:13px; color:var(--muted); font-family:var(--serif); font-size:15px; overflow-wrap:anywhere}
+.row .f i{font-style:italic}
+.row .d{grid-column:1 / -1; font-size:12.5px; color:var(--muted)}
+.breakdown{display:grid; grid-template-columns:1fr auto; gap:0 12px; font-size:12.5px; color:var(--muted); margin-top:4px; font-variant-numeric:tabular-nums}
+.breakdown span:nth-child(even){text-align:right}
+.assump{font-size:12.5px; color:var(--muted); margin:10px 0 2px; padding-top:10px; border-top:1px solid var(--line)}
+
+body.simple .tech-only{display:none!important}
+body.tech .simple-only{display:none!important}
+.top-right{display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:8px; margin-left:auto}
+.lang button{padding:7px 12px; letter-spacing:.04em}
+</style>
+</head>
+<body class="simple">
+<div class="app">
+
+<header class="top">
+  <div>
+    <div class="kicker" data-i18n="kicker">Simulador educativo</div>
+    <h1 data-i18n="title">Diseña tu cohete</h1>
+  </div>
+  <div class="top-right">
+    <div class="mode" role="group" data-i18n-aria="modeAria" aria-label="Nivel de detalle">
+      <button type="button" data-mode="simple" aria-pressed="true" data-i18n="mode.simple">Simple</button>
+      <button type="button" data-mode="tech" aria-pressed="false" data-i18n="mode.tech">Técnico</button>
+    </div>
+    <div class="mode lang" role="group" data-i18n-aria="langAria" aria-label="Idioma">
+      <button type="button" data-lang="es" aria-pressed="true" lang="es" title="Español">ES</button>
+      <button type="button" data-lang="en" aria-pressed="false" lang="en" title="English">EN</button>
+    </div>
+  </div>
+</header>
+
+<div class="disclaimer" role="note">
+  <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 21h20L12 3z" fill="none" stroke="#a9583e" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v5M12 17.5v.5" stroke="#a9583e" stroke-width="2" stroke-linecap="round"/></svg>
+  <div data-i18n="disclaimer"></div>
+</div>
+
+<div class="layout">
+
+  <!-- ===== Controles ===== -->
+  <section class="controls" data-i18n-aria="controlsAria">
+    <details class="group" open>
+      <summary data-i18n="g.nose"></summary>
+      <div class="group-body">
+        <div class="field">
+          <label for="sel-nose" data-i18n="lbl.shape"></label>
+          <select id="sel-nose" data-key="nose"></select>
+          <p class="note" id="note-nose"></p>
+        </div>
+        <div class="field" data-slider="Ln"></div>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary data-i18n="g.body"></summary>
+      <div class="group-body">
+        <div class="field" data-slider="Lb"></div>
+        <div class="field" data-slider="D"></div>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary data-i18n="g.fins"></summary>
+      <div class="group-body">
+        <div class="field">
+          <div class="lab" data-i18n="lbl.nfins"></div>
+          <div class="seg" role="group" data-i18n-aria="lbl.nfins">
+            <button type="button" data-n="3" aria-pressed="true">3</button>
+            <button type="button" data-n="4" aria-pressed="false">4</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="sel-fin" data-i18n="lbl.planform"></label>
+          <select id="sel-fin" data-key="finShape"></select>
+          <p class="note" id="note-fin"></p>
+        </div>
+        <div class="field" data-slider="span"></div>
+        <div class="field" data-slider="Cr"></div>
+        <div class="field" data-slider="Ct"></div>
+        <div class="field" data-slider="sweep"></div>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary data-i18n="g.mat"></summary>
+      <div class="group-body">
+        <div class="field">
+          <label for="sel-mat" data-i18n="lbl.matFor"></label>
+          <select id="sel-mat" data-key="mat"></select>
+          <p class="note" id="note-mat"></p>
+        </div>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary data-i18n="g.motor"></summary>
+      <div class="group-body">
+        <div class="field">
+          <label for="sel-prop" data-i18n="lbl.prop"></label>
+          <select id="sel-prop" data-key="prop"></select>
+          <p class="note" id="note-prop"></p>
+        </div>
+        <div class="field" data-slider="Lm"></div>
+        <div class="field" data-slider="rail"></div>
+      </div>
+    </details>
+
+    <details class="group" open>
+      <summary data-i18n="g.rec"></summary>
+      <div class="group-body">
+        <div class="field">
+          <label for="sel-rec" data-i18n="lbl.system"></label>
+          <select id="sel-rec" data-key="rec"></select>
+          <p class="note" id="note-rec"></p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== Visualización y resultados ===== -->
+  <section class="viz" data-i18n-aria="vizAria">
+    <div class="card drawing">
+      <div id="svgwrap"><svg id="rocket" role="img" data-i18n-aria="svgAria"></svg></div>
+      <div class="legend" id="legend"></div>
+      <p class="explain simple-only" data-i18n="explain"></p>
+    </div>
+
+    <div class="results">
+      <div class="card res stab">
+        <div class="light" aria-hidden="true"><span class="red"></span><span class="amber"></span><span class="green"></span></div>
+        <div>
+          <div class="kicker" data-i18n="k.stab"></div>
+          <div class="state" id="stab-state"></div>
+          <p id="stab-text"></p>
+          <p class="sub tech-only" id="stab-nums"></p>
+        </div>
+      </div>
+      <div class="card res">
+        <div class="kicker" data-i18n="k.apo"></div>
+        <div class="big" id="apo"></div>
+        <p id="apo-text"></p>
+      </div>
+    </div>
+
+    <div class="card tech tech-only" id="tech"></div>
+  </section>
+</div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   DATOS DE DISEÑO
+   Todos los valores son típicos/aproximados y sirven solo para estimar.
+   Los textos visibles van en pares {es, en}; ver también I18N más abajo.
+   ===================================================================== */
+
+// Ojivas. cd = contribución aproximada de la ojiva al coeficiente de arrastre subsónico
+// (valores orientativos relativos entre formas, no medidos).
+const NOSES = {
+  conica:    {cd:0.080, name:{es:'Cónica', en:'Conical'},
+    note:{es:'La más sencilla. En subsónico genera algo más de arrastre que las curvas; rinde bien en supersónico.',
+          en:'The simplest. At subsonic speeds it makes a bit more drag than curved shapes; it does well supersonic.'}},
+  tangente:  {cd:0.040, name:{es:'Ojiva tangente', en:'Tangent ogive'},
+    note:{es:'El clásico: su curva se funde con el tubo. Buen compromiso entre arrastre y facilidad de construcción.',
+          en:'The classic: its curve blends into the tube. A good balance between drag and ease of building.'}},
+  parabolica:{cd:0.030, name:{es:'Parabólica', en:'Parabolic'},
+    note:{es:'Hombros llenos y punta algo roma. Muy eficiente a velocidades subsónicas y transónicas bajas.',
+          en:'Full shoulders and a slightly blunt tip. Very efficient at subsonic and low transonic speeds.'}},
+  eliptica:  {cd:0.050, name:{es:'Elíptica', en:'Elliptical'},
+    note:{es:'Punta redondeada. Excelente a baja velocidad, pero su arrastre crece rápido cerca del sonido.',
+          en:'Rounded tip. Excellent at low speed, but its drag rises quickly near the speed of sound.'}},
+  vonkarman: {cd:0.035, name:{es:'Von Kármán', en:'Von Kármán'},
+    note:{es:'Perfil calculado para el mínimo arrastre de onda. La preferida para vuelos rápidos.',
+          en:'A profile calculated for minimum wave drag. The favorite for fast flights.'}}
+};
+
+const FIN_SHAPES = {
+  trapezoidal:{name:{es:'Trapezoidal', en:'Trapezoidal'},
+    note:{es:'La más versátil: cuerdas y flecha libres. Base de casi todos los diseños.',
+          en:'The most versatile: chords and sweep are free. The basis of almost every design.'}},
+  delta:      {name:{es:'Delta recortada', en:'Clipped delta'},
+    note:{es:'Borde de salida recto y de ataque inclinado. Robusta: aguanta bien los aterrizajes.',
+          en:'Straight trailing edge and swept leading edge. Sturdy: it handles landings well.'}},
+  eliptica:   {name:{es:'Elíptica', en:'Elliptical'},
+    note:{es:'Reparto de sustentación ideal y mínimo arrastre inducido, pero más difícil de fabricar.',
+          en:'Ideal lift distribution and the lowest induced drag, but harder to make.'}},
+  flecha:     {name:{es:'Flecha', en:'Swept'},
+    note:{es:'Borde de salida también barrido hacia atrás: retrasa mucho el CP, pero la punta es frágil.',
+          en:'The trailing edge is swept back too: moves the CP far aft, but the tip is fragile.'}}
+};
+
+// Materiales: densidad (kg/m³), espesor de pared del tubo y de las aletas (mm), coste y rigidez relativos (1–5).
+const MATERIALS = {
+  carton:  {name:{es:'Cartón', en:'Cardboard'},                rho:700,  wall:1.6, fin:3.0, cost:1, stiff:1, color:'#d6bf94', dark:false},
+  contra:  {name:{es:'Contrachapado', en:'Plywood'},           rho:630,  wall:3.0, fin:3.0, cost:2, stiff:2, color:'#e0bf88', dark:false},
+  vidrio:  {name:{es:'Fibra de vidrio', en:'Fiberglass'},      rho:1850, wall:1.5, fin:2.4, cost:3, stiff:4, color:'#e6e9dc', dark:false},
+  carbono: {name:{es:'Fibra de carbono', en:'Carbon fiber'},   rho:1550, wall:1.2, fin:2.0, cost:5, stiff:5, color:'#34342f', dark:true},
+  aluminio:{name:{es:'Aluminio', en:'Aluminum'},               rho:2700, wall:1.2, fin:2.0, cost:3, stiff:4, color:'#c4c8ca', dark:false}
+};
+
+// Propelentes: SOLO parámetros de rendimiento para la estimación.
+// isp = impulso específico entregado típico (s); rho = densidad típica (kg/m³);
+// cls = clase de empuje relativa; tb = duración de combustión supuesta (s) para obtener el empuje medio.
+const PROPS = {
+  KNSU:{isp:125, rho:1800, cls:{es:'media', en:'medium'},          tb:1.6},
+  KNSB:{isp:120, rho:1780, cls:{es:'media-baja', en:'medium-low'}, tb:2.0},
+  KNDX:{isp:128, rho:1790, cls:{es:'media', en:'medium'},          tb:1.7},
+  APCP:{isp:190, rho:1700, cls:{es:'alta', en:'high'},             tb:1.8}
+};
+
+const RECOVERY = {
+  ninguna:   {name:{es:'Ninguna', en:'None'},
+    note:{es:'Caída balística. Solo tiene sentido en simulación: no es aceptable en un lanzamiento real.',
+          en:'Ballistic fall. Only makes sense in simulation: it is not acceptable at a real launch.'}},
+  streamer:  {name:{es:'Streamer (cinta)', en:'Streamer'},
+    note:{es:'Una cinta que frena lo justo. Ligera; adecuada para cohetes pequeños.',
+          en:'A ribbon that slows it just enough. Light; suited to small rockets.'}},
+  paracaidas:{name:{es:'Paracaídas', en:'Parachute'},
+    note:{es:'Se abre en el apogeo. Lo habitual en cohetes medianos.',
+          en:'Opens at apogee. The usual choice for mid-size rockets.'}},
+  doble:     {name:{es:'Doble despliegue', en:'Dual deployment'},
+    note:{es:'Paracaídas pequeño en el apogeo y el principal a baja altura, con altímetro. Reduce la deriva.',
+          en:'A small drogue at apogee and the main chute at low altitude, fired by an altimeter. Reduces drift.'}}
+};
+
+const SLIDERS = {
+  Ln:   {label:{es:'Longitud de la ojiva', en:'Nose cone length'},              min:60,  max:500,  step:5,   unit:'mm'},
+  Lb:   {label:{es:'Longitud del cuerpo', en:'Body length'},                    min:300, max:2200, step:10,  unit:'mm'},
+  D:    {label:{es:'Diámetro', en:'Diameter'},                                  min:25,  max:160,  step:1,   unit:'mm'},
+  span: {label:{es:'Envergadura (altura de aleta)', en:'Span (fin height)'},    min:15,  max:250,  step:1,   unit:'mm'},
+  Cr:   {label:{es:'Cuerda en la raíz', en:'Root chord'},                       min:30,  max:400,  step:1,   unit:'mm'},
+  Ct:   {label:{es:'Cuerda en la punta', en:'Tip chord'},                       min:0,   max:400,  step:1,   unit:'mm'},
+  sweep:{label:{es:'Flecha (retraso de la punta)', en:'Sweep (tip offset)'},    min:0,   max:400,  step:1,   unit:'mm'},
+  Lm:   {label:{es:'Longitud del motor', en:'Motor length'},                    min:60,  max:1200, step:10,  unit:'mm'},
+  rail: {label:{es:'Longitud de la rampa', en:'Launch rail length'},            min:1,   max:5,    step:0.1, unit:'m', dec:1}
+};
+
+/* =====================================================================
+   TEXTOS DE LA INTERFAZ (español / inglés)
+   Las entradas que son funciones reciben valores ya formateados.
+   ===================================================================== */
+const I18N = {
+  es:{
+    docTitle:'Simulador de cohetes', kicker:'Simulador educativo', title:'Diseña tu cohete',
+    'mode.simple':'Simple', 'mode.tech':'Técnico', modeAria:'Nivel de detalle', langAria:'Idioma',
+    disclaimer:'<b>Aproximación educativa con modelos simplificados.</b> No es una herramienta de certificación y no debe usarse como única base para construir ni lanzar nada. Los lanzamientos reales requieren supervisión de una asociación de cohetería y cumplir la normativa local.',
+    controlsAria:'Parámetros del diseño', vizAria:'Cohete y resultados',
+    svgAria:'Dibujo lateral del cohete con su centro de gravedad y su centro de presión',
+    'g.nose':'Ojiva', 'g.body':'Cuerpo', 'g.fins':'Aletas', 'g.mat':'Material', 'g.motor':'Motor', 'g.rec':'Recuperación',
+    'lbl.shape':'Forma', 'lbl.nfins':'Número de aletas', 'lbl.planform':'Perfil en planta', 'lbl.matFor':'Tubo, ojiva y aletas',
+    'lbl.prop':'Propelente', 'lbl.system':'Sistema',
+    explain:'Para que un cohete vuele recto, el <b>centro de presión</b> (donde se concentra el empuje del aire) tiene que quedar <b>detrás</b> del <b>centro de gravedad</b> (su punto de equilibrio). Mueve las aletas y mira cómo se separan.',
+    'k.stab':'Estabilidad', 'k.apo':'Altura máxima estimada',
+    min:'mín.',
+    matNote:(rho, c, st) => `${rho} g/cm³ · coste ${c} · rigidez ${st}`,
+    propHint:'Cuánta energía da cada kilo de propelente: más impulso específico, más altura.',
+    propNote:(isp, rho, cls) => `I<sub>sp</sub> típico ${isp} s · densidad ${rho} g/cm³ · clase de empuje ${cls}`,
+    'part.nose':'Ojiva', 'part.tube':'Tubo', 'part.fins':'Aletas', 'part.case':'Motor (vacío)', 'part.prop':'Propelente',
+    'part.misc':'Varios', 'part.chute':'Paracaídas', 'part.chute_principal':'Paracaídas principal',
+    'part.chute_piloto':'Paracaídas piloto', 'part.bay':'Aviónica', 'part.streamer':'Streamer',
+    'svg.motor':'motor', 'svg.chute':'paracaídas', 'svg.drogue':'piloto', 'svg.avionics':'aviónica',
+    'svg.cg':'CG · centro de gravedad', 'svg.cp':'CP · centro de presión',
+    'svg.margin':m => `margen ${m} cal`, 'svg.cpAhead':'CP delante del CG', 'svg.gap':'separación',
+    'leg.cg':'Centro de gravedad', 'leg.cp':'Centro de presión', 'leg.motor':'Motor',
+    'leg.streamer':'Streamer', 'leg.chute':'Paracaídas', 'leg.dual':'Paracaídas y aviónica',
+    'st.red':'Inestable', 'st.red.t':'El centro de presión va por delante del de gravedad: el aire tendería a darle la vuelta y el cohete volaría dando tumbos. Agranda las aletas o alarga el cohete.',
+    'st.low':'Estabilidad justa', 'st.low.t':'Volaría recto en calma, pero una ráfaga o una salida lenta de la rampa podría desviarlo. Un poco más de aleta le daría margen.',
+    'st.ok':'Estable', 'st.ok.t':'Si el cohete se inclina, el aire lo vuelve a enderezar, como a una veleta, sin pasarse. Es el rango que se busca.',
+    'st.high':'Sobreestable', 'st.high.t':'Vuela recto, pero con viento tiende a girarse hacia él (efecto veleta) y pierde altura. Podrías reducir las aletas.',
+    stabNums:(m, mb) => `Margen <b>${m} cal</b> · al apagarse el motor ${mb} cal`,
+    noLift:'<span class="warn">El motor no tiene empuje suficiente para levantar este cohete.</span> Aligéralo o alarga el motor.',
+    eiffel:n => `Unas ${n} veces la altura de la torre Eiffel.`,
+    floors:n => `Algo más de ${n} pisos de un edificio.`,
+    unstableApo:'Con un cohete inestable este número no significa nada: no subiría recto.',
+    techTitle:'Detalle técnico',
+    'r.mass':'Masa total al despegue', 'f.nose':'ojiva', 'f.tube':'tubo', 'f.fins':'aletas', 'f.prop':'propelente',
+    'r.cg':'Centro de gravedad', fromTip:'mm desde la punta',
+    afterBurn:(x, m) => `Tras la combustión: ${x} mm (masa ${m} kg).`,
+    'r.cp':'Centro de presión (Barrowman)',
+    cpDetail:(xn, cnf, xf, ell) => `Ojiva: C<sub>N</sub> = 2, X<sub>n</sub> = ${xn} mm · Aletas: C<sub>N</sub> = ${cnf}, X<sub>f</sub> = ${xf} mm${ell ? ' (trapecio equivalente de igual área)' : ''}.`,
+    'r.margin':'Margen de estabilidad', calibers:'calibres',
+    marginNote:'Verde entre 1 y 2 calibres; ámbar fuera de ese rango; rojo si es negativo.',
+    'r.it':'Impulso total', cls:c => `N·s · clase ${c}`,
+    'r.thrust':'Empuje medio', assumed:'supuesto',
+    tw:v => `Relación empuje/peso: ${v} (se recomienda ≥ 5).`,
+    'r.cd':'Coeficiente de arrastre', wet:'moj',
+    'r.rail':'Velocidad al final de la rampa', integUntil:'Integración de', until:'hasta',
+    railLow:'Por debajo de 15 m/s, la referencia habitual: las aletas aún no tienen suficiente aire para estabilizarlo al salir.',
+    railOk:'Por encima de los 15 m/s de referencia habituales.',
+    'r.vmax':'Velocidad máxima',
+    machNote:'Por encima de Mach 0,8 los modelos subsónicos usados aquí dejan de ser fiables.',
+    'r.apo':'Apogeo', atTime:t => `m · a los ${t} s`,
+    cdMach:'C<sub>D</sub>(M) incluye un aumento aproximado del arrastre por encima de Mach 0,8.',
+    assump:'Supuestos: vuelo vertical sin viento; Barrowman subsónico a ángulo de ataque pequeño, sin sustentación del tubo; motor de diámetro 80 % del interior del tubo y llenado del 75 %; empuje constante; masas de recuperación y accesorios estimadas por proporción. Los valores de propelente son típicos de rendimiento y varían mucho con el diseño del motor.'
+  },
+  en:{
+    docTitle:'Rocket simulator', kicker:'Educational simulator', title:'Design your rocket',
+    'mode.simple':'Simple', 'mode.tech':'Technical', modeAria:'Level of detail', langAria:'Language',
+    disclaimer:'<b>An educational approximation using simplified models.</b> It is not a certification tool and must not be used as the sole basis for building or launching anything. Real launches require supervision by a rocketry association and compliance with local regulations.',
+    controlsAria:'Design parameters', vizAria:'Rocket and results',
+    svgAria:'Side view of the rocket with its center of gravity and center of pressure',
+    'g.nose':'Nose cone', 'g.body':'Body tube', 'g.fins':'Fins', 'g.mat':'Material', 'g.motor':'Motor', 'g.rec':'Recovery',
+    'lbl.shape':'Shape', 'lbl.nfins':'Number of fins', 'lbl.planform':'Planform', 'lbl.matFor':'Body, nose cone and fins',
+    'lbl.prop':'Propellant', 'lbl.system':'System',
+    explain:'For a rocket to fly straight, the <b>center of pressure</b> (where the push of the air is concentrated) must sit <b>behind</b> the <b>center of gravity</b> (its balance point). Change the fins and watch them move apart.',
+    'k.stab':'Stability', 'k.apo':'Estimated maximum altitude',
+    min:'min.',
+    matNote:(rho, c, st) => `${rho} g/cm³ · cost ${c} · stiffness ${st}`,
+    propHint:'How much energy each kilogram of propellant delivers: higher specific impulse, more altitude.',
+    propNote:(isp, rho, cls) => `Typical I<sub>sp</sub> ${isp} s · density ${rho} g/cm³ · thrust class ${cls}`,
+    'part.nose':'Nose cone', 'part.tube':'Body tube', 'part.fins':'Fins', 'part.case':'Motor (empty)', 'part.prop':'Propellant',
+    'part.misc':'Miscellaneous', 'part.chute':'Parachute', 'part.chute_principal':'Main parachute',
+    'part.chute_piloto':'Drogue parachute', 'part.bay':'Avionics', 'part.streamer':'Streamer',
+    'svg.motor':'motor', 'svg.chute':'parachute', 'svg.drogue':'drogue', 'svg.avionics':'avionics',
+    'svg.cg':'CG · center of gravity', 'svg.cp':'CP · center of pressure',
+    'svg.margin':m => `margin ${m} cal`, 'svg.cpAhead':'CP ahead of CG', 'svg.gap':'separation',
+    'leg.cg':'Center of gravity', 'leg.cp':'Center of pressure', 'leg.motor':'Motor',
+    'leg.streamer':'Streamer', 'leg.chute':'Parachute', 'leg.dual':'Parachutes and avionics',
+    'st.red':'Unstable', 'st.red.t':'The center of pressure is ahead of the center of gravity: the air would try to flip the rocket and it would tumble. Enlarge the fins or lengthen the rocket.',
+    'st.low':'Marginally stable', 'st.low.t':'It would fly straight in calm air, but a gust or a slow exit from the rail could throw it off. A bit more fin would give it some margin.',
+    'st.ok':'Stable', 'st.ok.t':'If the rocket tilts, the air straightens it again, like a weather vane, without overdoing it. This is the range you want.',
+    'st.high':'Overstable', 'st.high.t':'It flies straight, but in wind it tends to turn into it (weathercocking) and loses altitude. You could make the fins smaller.',
+    stabNums:(m, mb) => `Margin <b>${m} cal</b> · at motor burnout ${mb} cal`,
+    noLift:'<span class="warn">The motor doesn’t have enough thrust to lift this rocket.</span> Make it lighter or lengthen the motor.',
+    eiffel:n => `About ${n} times the height of the Eiffel Tower.`,
+    floors:n => `A little over ${n} floors of a building.`,
+    unstableApo:'With an unstable rocket this number means nothing: it wouldn’t climb straight.',
+    techTitle:'Technical detail',
+    'r.mass':'Total liftoff mass', 'f.nose':'nose', 'f.tube':'tube', 'f.fins':'fins', 'f.prop':'propellant',
+    'r.cg':'Center of gravity', fromTip:'mm from the tip',
+    afterBurn:(x, m) => `After burnout: ${x} mm (mass ${m} kg).`,
+    'r.cp':'Center of pressure (Barrowman)',
+    cpDetail:(xn, cnf, xf, ell) => `Nose: C<sub>N</sub> = 2, X<sub>n</sub> = ${xn} mm · Fins: C<sub>N</sub> = ${cnf}, X<sub>f</sub> = ${xf} mm${ell ? ' (equivalent trapezoid of equal area)' : ''}.`,
+    'r.margin':'Stability margin', calibers:'calibers',
+    marginNote:'Green between 1 and 2 calibers; amber outside that range; red if negative.',
+    'r.it':'Total impulse', cls:c => `N·s · class ${c}`,
+    'r.thrust':'Average thrust', assumed:'assumed',
+    tw:v => `Thrust-to-weight ratio: ${v} (≥ 5 recommended).`,
+    'r.cd':'Drag coefficient', wet:'wet',
+    'r.rail':'Velocity at end of rail', integUntil:'Integration of', until:'until',
+    railLow:'Below the usual 15 m/s reference: the fins don’t yet have enough airflow to stabilize it as it leaves the rail.',
+    railOk:'Above the usual 15 m/s reference.',
+    'r.vmax':'Maximum velocity',
+    machNote:'Above Mach 0.8 the subsonic models used here are no longer reliable.',
+    'r.apo':'Apogee', atTime:t => `m · at ${t} s`,
+    cdMach:'C<sub>D</sub>(M) includes an approximate drag rise above Mach 0.8.',
+    assump:'Assumptions: vertical flight with no wind; subsonic Barrowman at small angle of attack, no body lift; motor diameter 80% of the tube’s inner diameter and 75% fill; constant thrust; recovery and hardware masses estimated proportionally. Propellant values are typical performance figures and vary widely with motor design.'
+  }
+};
+
+// Idioma: se recuerda la elección en este navegador si el almacenamiento está disponible.
+let lang = 'es';
+try { const saved = localStorage.getItem('rocketsim-lang'); if (saved === 'es' || saved === 'en') lang = saved; } catch(e){}
+
+const t = (key, ...args) => { const v = I18N[lang][key] ?? I18N.es[key] ?? key; return typeof v === 'function' ? v(...args) : v; };
+const L = obj => obj[lang] ?? obj.es;   // texto de un par {es, en}
+
+// Diseño de ejemplo cargado al abrir: estable (margen ≈ 1,5 cal) y subsónico (≈ Mach 0,8).
+const state = {
+  mode:'simple', nose:'vonkarman', Ln:260, Lb:1000, D:66,
+  N:3, finShape:'trapezoidal', span:90, Cr:160, Ct:70, sweep:80,
+  mat:'vidrio', prop:'KNSU', Lm:160, rec:'paracaidas', rail:2
+};
+
+const G0 = 9.80665;
+const $ = s => document.querySelector(s);
+const fmt = (x, d=0) => x.toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
+const dots = n => '●'.repeat(n) + '<i>' + '●'.repeat(5-n) + '</i>';
+
+/* =====================================================================
+   GEOMETRÍA
+   ===================================================================== */
+
+// Radio de la ojiva r(x), con x medido desde la punta (0) hasta la base (L).
+function noseR(type, x, L, R){
+  const u = x / L;
+  switch(type){
+    case 'conica':     return R*u;
+    case 'tangente': { // ojiva tangente: arco de radio ρ = (R²+L²)/(2R) tangente al tubo
+      const rho = (R*R + L*L) / (2*R);
+      return Math.sqrt(Math.max(0, rho*rho - (L-x)*(L-x))) + R - rho; }
+    case 'parabolica': return R*(2*u - u*u);                         // serie parabólica, K' = 1
+    case 'eliptica':   return R*Math.sqrt(Math.max(0, 1 - (1-u)*(1-u)));
+    case 'vonkarman': { // serie Haack con C = 0 (LD-Haack / Von Kármán)
+      const th = Math.acos(1 - 2*u);
+      return R/Math.sqrt(Math.PI) * Math.sqrt(th - Math.sin(2*th)/2); }
+  }
+  return R*u;
+}
+
+// Aleta en planta. Coordenadas locales: x desde el borde de ataque de la raíz, y hacia la punta.
+// Devuelve el polígono y la trapezoidal equivalente que usa Barrowman (CtB, xsB).
+function finGeom(shape, Cr, CtIn, s, xsIn){
+  let pts, Ct = Math.min(CtIn, Cr), xs = xsIn, CtB, xsB;
+  if (shape === 'eliptica'){
+    pts = [];
+    for (let i = 0; i <= 48; i++){ const th = Math.PI*(1 - i/48); pts.push([Cr/2 + Cr/2*Math.cos(th), s*Math.sin(th)]); }
+    // Barrowman está formulado para trapecios: se usa uno de igual área (π/4·Cr·s) y centrado.
+    CtB = (Math.PI/2 - 1)*Cr; xsB = (Cr - CtB)/2; Ct = 0; xs = 0;
+  } else {
+    if (shape === 'delta')  xs = Cr - Ct;                              // borde de salida perpendicular al tubo
+    if (shape === 'flecha') xs = Math.max(xsIn, Cr - Ct + 0.25*Cr);    // borde de salida barrido hacia atrás
+    pts = [[0,0],[xs,s],[xs+Ct,s],[Cr,0]];
+    CtB = Ct; xsB = xs;
+  }
+  // Área y centroide del polígono (fórmula del cordón / shoelace).
+  let A = 0, cx = 0, cy = 0;
+  for (let i = 0; i < pts.length; i++){
+    const [x1,y1] = pts[i], [x2,y2] = pts[(i+1) % pts.length];
+    const c = x1*y2 - x2*y1; A += c; cx += (x1+x2)*c; cy += (y1+y2)*c;
+  }
+  A /= 2; cx /= 6*A; cy /= 6*A;
+  const tipTE = shape === 'eliptica' ? Cr : Math.max(Cr, xs + Ct);
+  return {pts, area:Math.abs(A), cx, cy, Cr, Ct, xs, s, CtB, xsB, tipTE};
+}
+
+// Longitud máxima del motor: deja sitio delante para la recuperación.
+const maxLm = s => Math.round(s.Lb*0.6/10)*10;
+
+/* =====================================================================
+   CÁLCULO
+   ===================================================================== */
+function compute(s){
+  const mm = v => v/1000;
+  const mat = MATERIALS[s.mat], prop = PROPS[s.prop];
+  const Ln = mm(s.Ln), Lb = mm(s.Lb), D = mm(s.D), R = D/2, L = Ln + Lb;
+  const tw = mat.wall/1000, tf = mat.fin/1000, rho = mat.rho;
+  const Aref = Math.PI*R*R;
+  const parts = [];
+
+  // --- Ojiva: cáscara de espesor tw. Superficie S = ∫2πr ds, volumen V = ∫πr² dx (troncos de cono).
+  const n = 90, prof = [];
+  for (let i = 0; i <= n; i++){ const x = Ln*Math.pow(i/n, 1.4); prof.push([x, noseR(s.nose, x, Ln, R)]); }
+  let S = 0, Sx = 0, V = 0;
+  for (let i = 1; i <= n; i++){
+    const [x1,r1] = prof[i-1], [x2,r2] = prof[i];
+    const dS = Math.PI*(r1+r2)*Math.hypot(x2-x1, r2-r1);
+    S += dS; Sx += dS*(x1+x2)/2;
+    V += Math.PI*(x2-x1)*(r1*r1 + r1*r2 + r2*r2)/3;
+  }
+  parts.push({k:'nose', m:S*tw*rho, x:Sx/S});
+
+  // --- Tubo: cilindro de pared delgada, m = π·d·L·t·ρ, CG en su mitad.
+  parts.push({k:'tube', m:Math.PI*D*Lb*tw*rho, x:Ln + Lb/2});
+
+  // --- Aletas: N placas planas, m = N·A·t·ρ. Raíz enrasada con el final del tubo.
+  const fin = finGeom(s.finShape, mm(s.Cr), mm(s.Ct), mm(s.span), mm(s.sweep));
+  const xFin = L - fin.Cr;
+  parts.push({k:'fins', m:s.N*fin.area*tf*rho, x:xFin + fin.cx});
+
+  // --- Motor: diámetro ≈ 80 % del interior del tubo, carcasa metálica de pared fina.
+  const Din = D - 2*tw, Dm = 0.8*Din, Lm = mm(Math.min(s.Lm, maxLm(s)));
+  const Dp = Math.max(0.004, Dm - 0.004);
+  const fill = 0.75;                                      // fracción de llenado volumétrico supuesta
+  const mp = Math.PI/4*Dp*Dp*Lm*fill*prop.rho;            // masa de propelente = ρp · V · f
+  const mCase = 2700*(Math.PI*Dm*Lm*0.0018 + 2*Math.PI*(Dm/2)**2*0.012); // carcasa + cierres (aluminio)
+  const xMotor = L - 0.005 - Lm/2;
+  parts.push({k:'case', m:mCase, x:xMotor});
+  parts.push({k:'prop', m:mp, x:xMotor, prop:true});
+
+  // --- Varios: anillos centradores/mamparo (contrachapado 6 mm) + 8 % de la estructura (adhesivo, pintura, guías).
+  const mStruct = parts[0].m + parts[1].m + parts[2].m;
+  parts.push({k:'misc', m:3*Math.PI*(Din/2)**2*0.006*630 + 0.08*mStruct, x:L - Lm*0.6});
+
+  // --- Recuperación: masa proporcional a la masa en seco a frenar (estimación empírica).
+  const mDryNoRec = parts.filter(p => !p.prop).reduce((a,p) => a + p.m, 0);
+  const rec = [];                                   // elementos dibujables: {kind, x0, x1, m}
+  const x0 = Ln + 0.02, motorFront = L - 0.005 - Lm;
+  if (s.rec === 'streamer'){
+    const len = Math.max(0.05, 1.5*D);
+    rec.push({kind:'streamer', x0, x1:x0+len, m:0.02 + 0.012*mDryNoRec});
+  } else if (s.rec === 'paracaidas'){
+    const len = Math.max(0.06, 2.2*D);
+    rec.push({kind:'chute', x0, x1:x0+len, m:0.04 + 0.05*mDryNoRec});
+  } else if (s.rec === 'doble'){
+    const mt = 0.20 + 0.07*mDryNoRec;               // incluye bahía de aviónica
+    const lMain = Math.max(0.06, 2*D), lDrog = Math.max(0.04, 1.3*D), lBay = Math.max(0.05, 1.5*D);
+    const dEnd = motorFront - 0.02, dStart = dEnd - lDrog;
+    const mid = (x0 + lMain + dStart)/2;
+    rec.push({kind:'chute', x0, x1:x0+lMain, m:0.45*mt, label:'principal'});
+    rec.push({kind:'bay',   x0:mid - lBay/2, x1:mid + lBay/2, m:0.35*mt});
+    rec.push({kind:'chute', x0:dStart, x1:dEnd, m:0.20*mt, label:'piloto', small:true});
+  }
+  rec.forEach(r => parts.push({k: r.kind==='bay' ? 'bay' : (r.kind==='streamer' ? 'streamer' : (r.label ? 'chute_' + r.label : 'chute')), m:r.m, x:(r.x0+r.x1)/2}));
+
+  // --- Masa y centro de gravedad: x_CG = Σ mᵢ·xᵢ / Σ mᵢ (desde la punta, motor cargado).
+  const m0 = parts.reduce((a,p) => a + p.m, 0);
+  const xcg = parts.reduce((a,p) => a + p.m*p.x, 0) / m0;
+  const mb = m0 - mp;
+  const xcgB = parts.filter(p => !p.prop).reduce((a,p) => a + p.m*p.x, 0) / mb;
+
+  // --- Centro de presión, método de Barrowman (subsónico, ángulo de ataque pequeño).
+  // Ojiva: C_Nα = 2 para cualquier forma; X_n = L − V/A_base.
+  const CNn = 2, Xn = Ln - V/Aref;
+  // Aletas: C_Nα = K·[4N(s/d)²] / [1 + √(1 + (2L_F/(Cr+Ct))²)], con interferencia K = 1 + R/(s+R).
+  const sF = fin.s, Cr = fin.Cr, Ct = fin.CtB, xs = fin.xsB;
+  const LF = Math.hypot(sF, xs + Ct/2 - Cr/2);                   // longitud de la línea de semicuerdas
+  const K = 1 + R/(sF + R);
+  const CNf = K * 4*s.N*(sF/D)**2 / (1 + Math.sqrt(1 + (2*LF/(Cr+Ct))**2));
+  const Xf = xFin + xs*(Cr + 2*Ct)/(3*(Cr + Ct)) + ((Cr + Ct) - Cr*Ct/(Cr + Ct))/6;
+  const xcp = (CNn*Xn + CNf*Xf)/(CNn + CNf);
+  const margin = (xcp - xcg)/D;
+  const marginB = (xcp - xcgB)/D;
+
+  // --- Motor: I_t = Isp·g0·m_p ; empuje medio F = I_t / t_b.
+  const It = prop.isp*G0*mp;
+  const cls = It <= 2.5 ? 'A' : 'ABCDEFGHIJKLMNOP'[Math.min(15, Math.ceil(Math.log2(It/2.5)))];
+  const F = It/prop.tb;
+
+  // --- Arrastre: C_D ≈ C_D,ojiva + 0,12 (base) + C_f·S_mojada/A_ref, con C_f ≈ 0,0035.
+  const Swet = Math.PI*D*Lb + S + 1.1*2*s.N*fin.area;
+  const Cd = NOSES[s.nose].cd + 0.12 + 0.0035*Swet/Aref;
+
+  // --- Vuelo vertical 1D: m·dv/dt = F − m·g − ½·ρ(h)·v²·C_D·A_ref, con ρ(h) = 1,225·e^(−h/8500).
+  const sim = simulate({m0, mp, F, tb:prop.tb, Cd, A:Aref, rail:s.rail});
+
+  return {
+    parts, m0, mb, mp, xcg, xcgB, xcp, margin, marginB, CNn, CNf, Xn, Xf, It, cls, F, Cd, sim, Aref,
+    geo:{Ln, Lb, D, R, L, prof, fin, xFin, Dm, Lm, xMotor, rec, xMax:Math.max(L, xFin + fin.tipTE)}
+  };
+}
+
+// Subida transónica del arrastre: factor aproximado sobre C_D (1 hasta Mach 0,8; ~1,8 a Mach 1,05; baja después).
+function machFactor(M){
+  if (M < 0.8) return 1;
+  if (M < 1.05) return 1 + 0.8*(M - 0.8)/0.25;
+  return Math.max(1.3, 1.8 - 0.5*(M - 1.05));
+}
+
+// Integración numérica (Euler semi-implícito, dt = 2 ms) hasta el apogeo.
+function simulate({m0, mp, F, tb, Cd, A, rail}){
+  const dt = 0.002;
+  if (F <= m0*G0) return {lift:false, apogee:0, vRail:0, vmax:0, tApo:0};
+  let t = 0, h = 0, v = 0, m = m0, vRail = null, vmax = 0;
+  while (t < 400){
+    const burning = t < tb;
+    const T = burning ? F : 0;
+    const rhoAir = 1.225*Math.exp(-Math.max(0,h)/8500);
+    const drag = 0.5*rhoAir*v*Math.abs(v)*Cd*machFactor(Math.abs(v)/343)*A;
+    const a = (T - drag)/m - G0;
+    v += a*dt; h += v*dt; t += dt;
+    if (burning) m -= mp/tb*dt;
+    if (vRail === null && h >= rail) vRail = v;
+    if (v > vmax) vmax = v;
+    if (!burning && v <= 0) break;
+  }
+  return {lift:true, apogee:h, vRail:vRail ?? 0, vmax, tApo:t};
+}
+
+/* =====================================================================
+   DIBUJO SVG
+   ===================================================================== */
+function draw(s, r){
+  const wrap = $('#svgwrap');
+  const W = Math.max(280, Math.round(wrap.clientWidth));
+  const g = r.geo, fin = g.fin, mat = MATERIALS[s.mat];
+  const pad = 20, sc = (W - 2*pad)/g.xMax;
+  const half = (g.R + fin.s)*sc;
+  const top = 44;
+  const cy = top + half;
+  const yCP = cy + half + 22, yBr = yCP + 26, yRul = yBr + 30;
+  const H = Math.round(yRul + 24);
+  const X = x => pad + x*sc, Y = y => cy - y*sc;
+  const f1 = v => v.toFixed(1);
+  const ink = '#141413', stroke = mat.dark ? '#141413' : '#141413';
+  const inner = mat.dark ? '#efe9de' : '#5c5a53';
+  let o = '';
+
+  // Defs: rayado para el propelente
+  o += `<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#f3c7b4"/><line x1="0" y1="0" x2="0" y2="6" stroke="#d97757" stroke-width="2"/></pattern></defs>`;
+
+  // Eje
+  o += `<line x1="${pad-8}" y1="${cy}" x2="${W-pad+8}" y2="${cy}" stroke="#c9bfae" stroke-dasharray="2 4"/>`;
+
+  // Aletas
+  const finPoly = (dir, k) => 'M' + fin.pts.map(([px,py]) => `${f1(X(g.xFin+px))},${f1(Y(dir*(g.R + py*k)))}`).join('L') + 'Z';
+  const finStyle = `fill="${mat.color}" stroke="${stroke}" stroke-width="1.4" stroke-linejoin="round"`;
+  if (s.N === 3){
+    // 3 aletas a 120°: una arriba completa; las otras dos se ven hacia abajo con proyección cos 60° = 0,5.
+    o += `<path d="${finPoly(-1, 0.5)}" ${finStyle} opacity=".85"/>`;
+    o += `<path d="${finPoly(1, 1)}" ${finStyle}/>`;
+  } else {
+    o += `<path d="${finPoly(-1, 1)}" ${finStyle}/>`;
+    o += `<path d="${finPoly(1, 1)}" ${finStyle}/>`;
+  }
+
+  // Tubo
+  o += `<rect x="${f1(X(g.Ln))}" y="${f1(Y(g.R))}" width="${f1(g.Lb*sc)}" height="${f1(g.D*sc)}" fill="${mat.color}" stroke="${stroke}" stroke-width="1.5"/>`;
+
+  // Ojiva
+  let d = `M${f1(X(0))},${f1(Y(0))}`;
+  g.prof.forEach(([x,rr]) => d += `L${f1(X(x))},${f1(Y(rr))}`);
+  for (let i = g.prof.length - 1; i >= 0; i--){ const [x,rr] = g.prof[i]; d += `L${f1(X(x))},${f1(Y(-rr))}`; }
+  o += `<path d="${d}Z" fill="${mat.color}" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round"/>`;
+
+  // Interior en vista seccionada: motor y recuperación
+  const bodyPx = g.D*sc;
+  const lbl = (x, y, t) => bodyPx >= 15 ? `<text x="${f1(x)}" y="${f1(y)}" font-size="${Math.min(11, bodyPx*0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="${mat.dark ? '#faf9f5' : '#141413'}" font-family="IBM Plex Sans, system-ui, sans-serif">${t}</text>` : '';
+  const mx0 = X(g.L - 0.005 - g.Lm), mw = g.Lm*sc, mh = g.Dm*sc;
+  o += `<rect x="${f1(mx0)}" y="${f1(cy - mh/2)}" width="${f1(mw)}" height="${f1(mh)}" rx="2" fill="url(#hatch)" stroke="#a9583e" stroke-width="1.2"/>`;
+  // tobera (a escala aproximada)
+  const nzL = Math.min(mw*0.18, mh*0.7);
+  o += `<path d="M${f1(mx0+mw-nzL)},${f1(cy - mh*0.18)}L${f1(mx0+mw)},${f1(cy - mh*0.38)}L${f1(mx0+mw)},${f1(cy + mh*0.38)}L${f1(mx0+mw-nzL)},${f1(cy + mh*0.18)}Z" fill="#5c5a53"/>`;
+  if (mw > 44 && mh >= 12) o += `<text x="${f1(mx0 + (mw-nzL)/2)}" y="${cy}" font-size="${Math.min(11, mh*0.55).toFixed(1)}" text-anchor="middle" dominant-baseline="central" fill="#6e2f1c" font-weight="600" font-family="IBM Plex Sans, system-ui, sans-serif">${t('svg.motor')}</text>`;
+
+  g.rec.forEach(it => {
+    const a = X(it.x0), b = X(it.x1), w = b - a, hh = (it.kind === 'bay' ? g.D : g.Dm*0.95)*sc;
+    if (it.kind === 'chute'){
+      o += `<rect x="${f1(a)}" y="${f1(cy-hh/2)}" width="${f1(w)}" height="${f1(hh)}" rx="${f1(Math.min(6,hh/2))}" fill="#9fb183" fill-opacity=".55" stroke="#55693f" stroke-width="1.2" stroke-dasharray="3 2"/>`;
+      // pliegues del paño
+      for (let i = 1; i < 4; i++) o += `<line x1="${f1(a + w*i/4)}" y1="${f1(cy-hh/2+2)}" x2="${f1(a + w*i/4)}" y2="${f1(cy+hh/2-2)}" stroke="#55693f" stroke-width=".8" opacity=".7"/>`;
+      if (w > 50) o += lbl(a + w/2, cy, t(it.small ? 'svg.drogue' : 'svg.chute'));
+    } else if (it.kind === 'streamer'){
+      o += `<rect x="${f1(a)}" y="${f1(cy-hh/2)}" width="${f1(w)}" height="${f1(hh)}" rx="3" fill="#f3c7b4" fill-opacity=".6" stroke="#a9583e" stroke-width="1" stroke-dasharray="3 2"/>`;
+      let zz = `M${f1(a+3)},${f1(cy-hh/2+3)}`; const k = 7;
+      for (let i = 1; i <= k; i++) zz += `L${f1(a+3+(w-6)*i/k)},${f1(i%2 ? cy+hh/2-3 : cy-hh/2+3)}`;
+      o += `<path d="${zz}" fill="none" stroke="#d97757" stroke-width="1.8"/>`;
+    } else if (it.kind === 'bay'){
+      o += `<rect x="${f1(a)}" y="${f1(Y(g.R))}" width="${f1(w)}" height="${f1(g.D*sc)}" fill="#141413" fill-opacity=".14" stroke="${ink}" stroke-width="1.2"/>`;
+      o += `<rect x="${f1(a + w*0.2)}" y="${f1(cy - hh*0.18)}" width="${f1(w*0.6)}" height="${f1(hh*0.36)}" rx="1.5" fill="#55693f"/>`;
+      if (w > 50 && bodyPx >= 26) o += lbl(a + w/2, cy - hh*0.34, t('svg.avionics'));
+    }
+  });
+
+  // Aleta de canto (configuración en cruz: la que apunta al observador)
+  if (s.N === 4){
+    const tpx = Math.max(2, MATERIALS[s.mat].fin/1000*sc);
+    o += `<rect x="${f1(X(g.xFin))}" y="${f1(cy - tpx/2)}" width="${f1(fin.tipTE*sc)}" height="${f1(tpx)}" fill="${mat.color}" stroke="${stroke}" stroke-width="1"/>`;
+  }
+
+  // --- Marcadores CG y CP
+  const tech = s.mode === 'tech';
+  const col = r.margin < 0 ? '#b3362b' : (r.margin < 1 || r.margin > 2 ? '#c08a1c' : '#55693f');
+  const xg = X(r.xcg), xp = X(r.xcp);
+  const place = (x, txt, y, color, weight) => {
+    const right = x + 13 + txt.length*7 < W;
+    return `<text x="${f1(right ? x + 13 : x - 13)}" y="${y}" text-anchor="${right ? 'start' : 'end'}" dominant-baseline="central" font-size="13" fill="${color}" font-weight="${weight}" font-family="IBM Plex Sans, system-ui, sans-serif">${txt}</text>`;
+  };
+  // líneas guía
+  o += `<line x1="${f1(xg)}" y1="${top-16}" x2="${f1(xg)}" y2="${cy}" stroke="#faf9f5" stroke-width="3"/><line x1="${f1(xg)}" y1="${top-16}" x2="${f1(xg)}" y2="${cy}" stroke="${ink}" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+  o += `<line x1="${f1(xp)}" y1="${cy}" x2="${f1(xp)}" y2="${yCP}" stroke="#faf9f5" stroke-width="3"/><line x1="${f1(xp)}" y1="${cy}" x2="${f1(xp)}" y2="${yCP}" stroke="#a9583e" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+  // símbolos sobre el eje
+  const cgSym = (x, y, rr) => `<g transform="translate(${f1(x)},${f1(y)})"><circle r="${rr}" fill="#fff" stroke="${ink}" stroke-width="1.5"/><path d="M0,0V${-rr}A${rr},${rr} 0 0,1 ${rr},0Z" fill="${ink}"/><path d="M0,0V${rr}A${rr},${rr} 0 0,1 ${-rr},0Z" fill="${ink}"/></g>`;
+  const cpSym = (x, y, rr) => `<g transform="translate(${f1(x)},${f1(y)})"><circle r="${rr}" fill="#fff" stroke="#a9583e" stroke-width="2"/><circle r="${(rr*0.38).toFixed(1)}" fill="#a9583e"/></g>`;
+  o += cpSym(xp, cy, 6) + cgSym(xg, cy, 6);
+  // etiquetas
+  o += cgSym(xg, top-22, 8) + place(xg, tech ? `CG · ${fmt(r.xcg*1000)} mm` : t('svg.cg'), top-22, ink, 600);
+  o += cpSym(xp, yCP, 8) + place(xp, tech ? `CP · ${fmt(r.xcp*1000)} mm` : t('svg.cp'), yCP, '#a9583e', 600);
+
+  // Corchete del margen
+  const a1 = Math.min(xg, xp), a2 = Math.max(xg, xp);
+  o += `<path d="M${f1(xg)},${yBr-5}V${yBr+5}M${f1(xg)},${yBr}H${f1(xp)}M${f1(xp)},${yBr-5}V${yBr+5}" stroke="${col}" stroke-width="2" fill="none"/>`;
+  const mTxt = tech ? t('svg.margin', fmt(r.margin,2)) : t(r.margin < 0 ? 'svg.cpAhead' : 'svg.gap');
+  const cx = Math.min(W - 60, Math.max(60, (a1 + a2)/2));
+  o += `<text x="${f1(cx)}" y="${yBr+16}" text-anchor="middle" font-size="12" fill="${col}" font-weight="600" font-family="IBM Plex Sans, system-ui, sans-serif">${mTxt}</text>`;
+
+  // Regla
+  const steps = [0.05, 0.1, 0.2, 0.25, 0.5, 1];
+  const lab = steps.find(st => st*sc >= 55) || 1;
+  const tick = lab/5;
+  o += `<line x1="${f1(X(0))}" y1="${yRul}" x2="${f1(X(g.xMax))}" y2="${yRul}" stroke="#8a867b" stroke-width="1"/>`;
+  for (let v = 0; v <= g.xMax + 1e-9; v += tick){
+    const major = Math.abs(v/lab - Math.round(v/lab)) < 1e-6;
+    o += `<line x1="${f1(X(v))}" y1="${yRul}" x2="${f1(X(v))}" y2="${yRul + (major ? 6 : 3)}" stroke="#8a867b"/>`;
+    if (major) o += `<text x="${f1(X(v))}" y="${yRul+17}" text-anchor="middle" font-size="10.5" fill="#5c5a53" font-family="IBM Plex Sans, system-ui, sans-serif">${v < 1 ? fmt(v*100) + ' cm' : fmt(v, v % 1 ? 1 : 0) + ' m'}</text>`;
+  }
+
+  const svg = $('#rocket');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = o;
+}
+
+/* =====================================================================
+   RESULTADOS
+   ===================================================================== */
+function render(){
+  const s = state;
+  const r = compute(s);
+  draw(s, r);
+
+  // Leyenda
+  const recKey = {ninguna:'', streamer:'leg.streamer', paracaidas:'leg.chute', doble:'leg.dual'}[s.rec];
+  $('#legend').innerHTML =
+    `<span><svg width="14" height="14" viewBox="-7 -7 14 14"><circle r="6" fill="#fff" stroke="#141413" stroke-width="1.4"/><path d="M0,0V-6A6,6 0 0,1 6,0Z M0,0V6A6,6 0 0,1 -6,0Z" fill="#141413"/></svg>${t('leg.cg')}</span>` +
+    `<span><svg width="14" height="14" viewBox="-7 -7 14 14"><circle r="6" fill="#fff" stroke="#a9583e" stroke-width="1.8"/><circle r="2.3" fill="#a9583e"/></svg>${t('leg.cp')}</span>` +
+    `<span><i class="sw" style="background:#f3c7b4;border:1px solid #d97757"></i>${t('leg.motor')}</span>` +
+    (recKey ? `<span><i class="sw" style="background:#c4cfb2;border:1px dashed #55693f"></i>${t(recKey)}</span>` : '');
+
+  // Semáforo de estabilidad
+  const mg = r.margin;
+  let cls, key;
+  if (mg < 0)        { cls = 'red';   key = 'st.red'; }
+  else if (mg < 1)   { cls = 'amber'; key = 'st.low'; }
+  else if (mg <= 2)  { cls = 'green'; key = 'st.ok'; }
+  else               { cls = 'amber'; key = 'st.high'; }
+  document.querySelectorAll('.light span').forEach(el => el.classList.toggle('on', el.classList.contains(cls)));
+  const st = $('#stab-state'); st.textContent = t(key); st.className = 'state ' + cls;
+  $('#stab-text').textContent = t(key + '.t');
+  $('#stab-nums').innerHTML = t('stabNums', fmt(mg,2), fmt(r.marginB,2));
+
+  // Apogeo
+  const apoEl = $('#apo'), apoTx = $('#apo-text');
+  if (!r.sim.lift){
+    apoEl.innerHTML = '0 <small>m</small>';
+    apoTx.innerHTML = t('noLift');
+  } else {
+    const ap = r.sim.apogee;
+    apoEl.innerHTML = `${fmt(ap >= 100 ? Math.round(ap/10)*10 : ap)} <small>m</small>`;
+    const eiffel = ap/330;
+    let tx = eiffel >= 1 ? t('eiffel', fmt(eiffel, eiffel < 10 ? 1 : 0)) : t('floors', fmt(Math.floor(ap/3)));
+    if (mg < 0) tx += ` <span class="warn">${t('unstableApo')}</span>`;
+    apoTx.innerHTML = tx;
+  }
+
+  renderTech(s, r);
+}
+
+function renderTech(s, r){
+  const p = PROPS[s.prop];
+  const n = x => x.toLocaleString(lang === 'es' ? 'es-ES' : 'en-US', {maximumFractionDigits:6, useGrouping:false}); // constantes de las fórmulas
+  const row = (k, v, u, f, extra='') => `<div class="row"><div class="k">${k}</div><div class="v">${v} <span class="u">${u}</span></div>${f ? `<div class="f">${f}</div>` : ''}${extra}</div>`;
+  const bd = '<div class="d"><div class="breakdown">' + r.parts.map(pp => `<span>${t('part.' + pp.k)}</span><span>${fmt(pp.m*1000)} g · x = ${fmt(pp.x*1000)} mm</span>`).join('') + '</div></div>';
+  const sim = r.sim, mach = sim.vmax/343;
+  const railNote = !sim.lift ? '' : (sim.vRail < 15 ? `<div class="d warn">${t('railLow')}</div>` : `<div class="d">${t('railOk')}</div>`);
+  const machNote = mach > 0.8 ? `<div class="d warn">${t('machNote')}</div>` : '';
+
+  $('#tech').innerHTML = `<h2>${t('techTitle')}</h2>` +
+    row(t('r.mass'), fmt(r.m0, 3), 'kg',
+      `<i>m</i> = Σ <i>m<sub>i</sub></i> ; ${t('f.nose')} <i>ρt</i>∫2π<i>r</i> d<i>s</i> · ${t('f.tube')} π<i>dLtρ</i> · ${t('f.fins')} <i>N A t<sub>a</sub> ρ</i> · ${t('f.prop')} <i>ρ<sub>p</sub> V<sub>m</sub> f</i>`, bd) +
+    row(t('r.cg'), fmt(r.xcg*1000), t('fromTip'),
+      `<i>x</i><sub>CG</sub> = Σ <i>m<sub>i</sub> x<sub>i</sub></i> / Σ <i>m<sub>i</sub></i>`,
+      `<div class="d">${t('afterBurn', fmt(r.xcgB*1000), fmt(r.mb,3))}</div>`) +
+    row(t('r.cp'), fmt(r.xcp*1000), t('fromTip'),
+      `<i>X</i><sub>CP</sub> = (<i>C<sub>N,n</sub> X<sub>n</sub></i> + <i>C<sub>N,f</sub> X<sub>f</sub></i>) / (<i>C<sub>N,n</sub></i> + <i>C<sub>N,f</sub></i>)<br>` +
+      `<i>C<sub>N,n</sub></i> = 2 , <i>X<sub>n</sub></i> = <i>L<sub>n</sub></i> − <i>V<sub>n</sub></i>/<i>A</i><br>` +
+      `<i>C<sub>N,f</sub></i> = [1 + <i>R</i>/(<i>s</i>+<i>R</i>)] · 4<i>N</i>(<i>s</i>/<i>d</i>)² / [1 + √(1 + (2<i>L<sub>F</sub></i>/(<i>C<sub>r</sub></i>+<i>C<sub>t</sub></i>))²)]<br>` +
+      `<i>X<sub>f</sub></i> = <i>X<sub>B</sub></i> + <i>X<sub>R</sub></i>(<i>C<sub>r</sub></i>+2<i>C<sub>t</sub></i>)/[3(<i>C<sub>r</sub></i>+<i>C<sub>t</sub></i>)] + [(<i>C<sub>r</sub></i>+<i>C<sub>t</sub></i>) − <i>C<sub>r</sub>C<sub>t</sub></i>/(<i>C<sub>r</sub></i>+<i>C<sub>t</sub></i>)]/6`,
+      `<div class="d">${t('cpDetail', fmt(r.Xn*1000), fmt(r.CNf,2), fmt(r.Xf*1000), s.finShape === 'eliptica')}</div>`) +
+    row(t('r.margin'), fmt(r.margin, 2), t('calibers'),
+      `SM = (<i>X</i><sub>CP</sub> − <i>x</i><sub>CG</sub>) / <i>d</i>`,
+      `<div class="d">${t('marginNote')}</div>`) +
+    row(t('r.it'), fmt(r.It), t('cls', r.cls),
+      `<i>I<sub>t</sub></i> = <i>I<sub>sp</sub></i> · <i>g</i><sub>0</sub> · <i>m<sub>p</sub></i> = ${p.isp} s · ${n(9.81)} m/s² · ${fmt(r.mp,3)} kg`) +
+    row(t('r.thrust'), fmt(r.F), 'N',
+      `<i>F</i> = <i>I<sub>t</sub></i> / <i>t<sub>b</sub></i> , <i>t<sub>b</sub></i> ≈ ${fmt(p.tb,1)} s (${t('assumed')})`,
+      `<div class="d">${t('tw', fmt(r.F/(r.m0*G0),1))}</div>`) +
+    row(t('r.cd'), fmt(r.Cd, 2), '',
+      `<i>C<sub>D</sub></i> ≈ <i>C<sub>D,${t('f.nose')}</sub></i> + ${n(0.12)} + <i>C<sub>f</sub></i> <i>S<sub>${t('wet')}</sub></i>/<i>A</i> , <i>C<sub>f</sub></i> ≈ ${n(0.0035)}`) +
+    row(t('r.rail'), fmt(sim.vRail, 1), 'm/s',
+      `${t('integUntil')} <i>m</i> d<i>v</i>/d<i>t</i> = <i>F</i> − <i>mg</i> − ½<i>ρv</i>²<i>C<sub>D</sub>A</i> ${t('until')} <i>h</i> = ${fmt(s.rail,1)} m`, railNote) +
+    row(t('r.vmax'), fmt(sim.vmax), `m/s · Mach ${fmt(mach, 2)}`, '', machNote) +
+    row(t('r.apo'), fmt(sim.apogee), t('atTime', fmt(sim.tApo,1)),
+      `<i>m</i> d<i>v</i>/d<i>t</i> = <i>F</i> − <i>mg</i> − ½<i>ρ</i>(<i>h</i>)<i>v</i>|<i>v</i>|<i>C<sub>D</sub></i>(<i>M</i>)<i>A</i> , <i>ρ</i>(<i>h</i>) = ${n(1.225)} e<sup>−<i>h</i>/8500</sup> kg/m³ , Δ<i>t</i> = 2 ms`, `<div class="d">${t('cdMach')}</div>`) +
+    `<p class="assump">${t('assump')}</p>`;
+}
+
+/* =====================================================================
+   CONTROLES E IDIOMA
+   ===================================================================== */
+function sliderValue(key){
+  const v = state[key], sp = SLIDERS[key];
+  return `${fmt(v, sp.dec || 0)} ${sp.unit}`;
+}
+
+function fillSelects(){
+  const fill = (sel, data, label) => {
+    $(sel).innerHTML = Object.entries(data).map(([k,v]) => `<option value="${k}">${label(k,v)}</option>`).join('');
+  };
+  fill('#sel-nose', NOSES, (k,v) => L(v.name));
+  fill('#sel-fin', FIN_SHAPES, (k,v) => L(v.name));
+  fill('#sel-mat', MATERIALS, (k,v) => L(v.name));
+  fill('#sel-prop', PROPS, k => k);
+  fill('#sel-rec', RECOVERY, (k,v) => L(v.name));
+}
+
+// Aplica el idioma a los textos fijos, etiquetas de controles y opciones.
+function applyLang(){
+  document.documentElement.lang = lang;
+  document.title = t('docTitle');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  document.querySelectorAll('[data-slider]').forEach(el => { el.querySelector('label span').textContent = L(SLIDERS[el.dataset.slider].label); });
+  fillSelects();
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+}
+
+function buildControls(){
+  document.querySelectorAll('[data-slider]').forEach(el => {
+    const key = el.dataset.slider, sp = SLIDERS[key], id = 'rng-' + key;
+    el.innerHTML = `<label for="${id}"><span></span><output id="out-${key}"></output></label>` +
+      `<input type="range" id="${id}" min="${sp.min}" max="${sp.max}" step="${sp.step}" value="${state[key]}">`;
+    el.querySelector('input').addEventListener('input', e => { state[key] = parseFloat(e.target.value); update(); });
+  });
+
+  document.querySelectorAll('select[data-key]').forEach(el => {
+    el.addEventListener('change', e => { state[el.dataset.key] = e.target.value; update(); });
+  });
+
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { state.N = +b.dataset.n; update(); }));
+  document.querySelectorAll('.mode button[data-mode]').forEach(b => b.addEventListener('click', () => { state.mode = b.dataset.mode; update(); }));
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => {
+    lang = b.dataset.lang;
+    try { localStorage.setItem('rocketsim-lang', lang); } catch(e){}
+    applyLang(); update();
+  }));
+}
+
+function update(){
+  const s = state;
+  // Restricciones entre controles
+  const rngLm = $('#rng-Lm'), lmMax = maxLm(s);
+  rngLm.max = lmMax; if (s.Lm > lmMax){ s.Lm = lmMax; } rngLm.value = s.Lm;
+  const rngCt = $('#rng-Ct'); rngCt.max = s.Cr; if (s.Ct > s.Cr){ s.Ct = s.Cr; } rngCt.value = s.Ct;
+
+  // Campos que dependen del perfil de aleta
+  const shape = s.finShape;
+  const fg = finGeom(shape, s.Cr, s.Ct, s.span, s.sweep);
+  const ctAuto = shape === 'eliptica', swAuto = shape !== 'trapezoidal';
+  document.querySelector('[data-slider="Ct"]').classList.toggle('disabled', ctAuto);
+  document.querySelector('[data-slider="sweep"]').classList.toggle('disabled', swAuto && shape !== 'flecha');
+  $('#rng-Ct').disabled = ctAuto;
+  $('#rng-sweep').disabled = shape === 'eliptica' || shape === 'delta';
+
+  Object.keys(SLIDERS).forEach(k => { $('#out-' + k).textContent = sliderValue(k); });
+  if (shape === 'delta' || shape === 'eliptica') $('#out-sweep').textContent = `${fmt(fg.xs)} mm`;
+  if (shape === 'flecha' && fg.xs > s.sweep) $('#out-sweep').textContent = `${fmt(fg.xs)} mm (${t('min')})`;
+  if (shape === 'eliptica') $('#out-Ct').textContent = '0 mm';
+
+  // Notas
+  const m = MATERIALS[s.mat], p = PROPS[s.prop];
+  $('#note-nose').textContent = L(NOSES[s.nose].note);
+  $('#note-fin').textContent = L(FIN_SHAPES[shape].note);
+  $('#note-mat').innerHTML = t('matNote', fmt(m.rho/1000, 2), `<span class="dots">${dots(m.cost)}</span>`, `<span class="dots">${dots(m.stiff)}</span>`);
+  $('#note-prop').innerHTML = `<span class="simple-only">${t('propHint')}<br></span>` + t('propNote', p.isp, fmt(p.rho/1000, 2), L(p.cls));
+  $('#note-rec').textContent = L(RECOVERY[s.rec].note);
+
+  document.querySelectorAll('select[data-key]').forEach(el => { el.value = s[el.dataset.key]; });
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.n === s.N)));
+  document.querySelectorAll('.mode button[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === s.mode)));
+  document.body.className = s.mode;
+
+  render();
+}
+
+buildControls();
+applyLang();
+update();
+if ('ResizeObserver' in window){
+  let last = 0;
+  new ResizeObserver(entries => {
+    const w = Math.round(entries[0].contentRect.width);
+    if (w !== last){ last = w; render(); }
+  }).observe($('#svgwrap'));
+} else {
+  window.addEventListener('resize', render);
+}
+</script>
+</body>
+</html>

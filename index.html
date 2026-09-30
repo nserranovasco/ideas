@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ideas for the sake of having them</title>
-<meta name="description" content="What would you like to exist in your world that doesn't? Leave an idea. All of them get published on 30 September.">
+<meta name="description" content="I asked strangers what they'd like to exist. Nobody answered. So here are my own answers: six projects, what they solve, and what went wrong building them.">
 <meta name="robots" content="index, follow">
 
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nserranovasco.github.io/ideas/">
 <meta property="og:title" content="Ideas for the sake of having them">
-<meta property="og:description" content="What would you like to exist in your world that doesn't? Leave an idea. All of them get published on 30 September.">
-<meta property="og:image" content="https://nserranovasco.github.io/ideas/og-en.png">
+<meta property="og:description" content="I asked strangers what they'd like to exist. Zero answers. So here are my own: six projects, what they solve, and what went wrong.">
+<meta property="og:image" content="https://nserranovasco.github.io/ideas/og-results.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_US">
@@ -34,15 +34,20 @@
     --orange:       #d97757;
     --orange-deep:  #a9583e;
     --orange-press: #8f4a34;
-    --green:        #5d6f47;
-    --halo:         rgba(217, 119, 87, 0.28);
+    --green:        #55693f;
+    --green-bg:     #e4e9da;
+    --amber-bg:     #f4e2d6;
     --r-sm: 8px;
     --r-md: 12px;
     --gap-band: clamp(52px, 8vw, 92px);
   }
 
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; animation: none !important; }
+  }
 
   body {
     margin: 0;
@@ -53,7 +58,6 @@
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
   }
-
   img { max-width: 100%; }
 
   .col { max-width: 700px; margin: 0 auto; padding-inline: 22px; }
@@ -79,7 +83,7 @@
     color: var(--ink-soft); background: var(--surface);
     border-radius: 999px; padding: 6px 14px; margin-bottom: 26px;
   }
-  .tag .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); flex: none; }
+  .tag .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-faint); flex: none; }
 
   h1 {
     font-family: Newsreader, Georgia, "Times New Roman", serif;
@@ -89,6 +93,7 @@
 
   .lede { display: flex; flex-direction: column; gap: 16px; }
   .lede p { margin: 0; font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); }
+  .lede .zero { font-size: 1.25rem; color: var(--ink); font-weight: 500; }
 
   .band { background: var(--orange); margin-top: var(--gap-band); padding-block: clamp(44px, 7vw, 68px); }
   .band p {
@@ -99,112 +104,113 @@
   }
 
   .after-band { padding-top: 30px; }
-  .after-band p { margin: 0; font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); }
+  .after-band p { margin: 0 0 14px; font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); }
+  .after-band p:last-child { margin-bottom: 0; }
 
-  .sheet { margin-top: 36px; background: var(--surface); border-radius: var(--r-md); padding: clamp(22px, 4vw, 34px); }
+  /* índice */
+  .toc { margin-top: 38px; padding-top: 24px; border-top: 1px solid var(--line-strong); }
+  .toc h2 {
+    margin: 0 0 14px; font-size: 12px; font-weight: 500;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .toc ol { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+  .toc a {
+    display: inline-block; text-decoration: none;
+    font-size: 0.875rem; color: var(--ink);
+    background: var(--surface); border-radius: 999px; padding: 6px 14px;
+    transition: background .15s, color .15s;
+  }
+  .toc a:hover { background: var(--orange-deep); color: var(--canvas); }
+  .toc a:focus-visible { outline: 2px solid var(--orange-deep); outline-offset: 2px; }
 
-  form { display: flex; flex-direction: column; gap: 26px; }
-  .field { display: flex; flex-direction: column; gap: 8px; }
+  /* fichas */
+  #projects { display: flex; flex-direction: column; gap: 22px; margin-top: 30px; }
 
-  .lbl {
-    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
-    font-size: 12px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink);
+  .card {
+    background: var(--surface); border-radius: var(--r-md);
+    padding: clamp(22px, 4vw, 32px);
+    scroll-margin-top: 20px;
   }
-  .lbl .opt { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 12.5px; color: var(--ink-faint); }
+  .card-head {
+    display: flex; flex-wrap: wrap; align-items: baseline;
+    justify-content: space-between; gap: 10px 16px; margin-bottom: 14px;
+  }
+  .card h3 {
+    margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 400;
+    font-size: 1.75rem; letter-spacing: -0.016em; line-height: 1.15;
+  }
+  .chip {
+    flex: none; font-size: 11.5px; font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 4px 11px; border-radius: 999px; white-space: nowrap;
+  }
+  .chip.live   { background: var(--green-bg); color: var(--green); }
+  .chip.proto  { background: var(--amber-bg); color: var(--orange-deep); }
+  .chip.none   { background: var(--canvas); color: var(--ink-faint); }
 
-  input[type="text"], textarea {
-    width: 100%; font-family: inherit; font-size: 1rem; line-height: 1.55; color: var(--ink);
-    background: var(--canvas); border: 1px solid var(--line-strong); border-radius: var(--r-sm);
-    padding: 11px 14px; transition: border-color .15s, box-shadow .15s;
-  }
-  textarea { min-height: 156px; resize: vertical; }
-  input[type="text"]::placeholder, textarea::placeholder { color: var(--ink-faint); }
-  input[type="text"]:focus-visible, textarea:focus-visible {
-    outline: none; border-color: var(--orange-deep); box-shadow: 0 0 0 3px var(--halo);
-  }
-  input.invalid, textarea.invalid { border-color: var(--orange-deep); }
+  .card .lead { margin: 0 0 22px; font-size: 1.0625rem; line-height: 1.6; color: var(--ink); }
 
-  .help { margin: 0; font-size: 0.8125rem; line-height: 1.5; color: var(--ink-faint); }
-  .counter {
-    align-self: flex-end; font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 11px; font-variant-numeric: tabular-nums; color: var(--ink-faint);
+  /* capturas */
+  .shots { display: flex; flex-direction: column; gap: 18px; margin: 0 0 24px; }
+  figure.shot { margin: 0; }
+  figure.shot img {
+    display: block; width: 100%; height: auto;
+    border-radius: var(--r-sm); border: 1px solid var(--line-strong);
+    background: var(--canvas);
+  }
+  figure.shot figcaption {
+    margin-top: 9px; font-size: 0.8125rem; line-height: 1.55; color: var(--ink-faint);
   }
 
-  .consent { display: flex; flex-direction: column; gap: 16px; padding-top: 24px; border-top: 1px solid var(--line-strong); }
-  .consent-head { margin: 0; font-size: 12px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink); }
-  .check { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; cursor: pointer; }
-  .check input {
-    appearance: none; width: 18px; height: 18px; margin: 2px 0 0;
-    border: 1px solid var(--line-strong); border-radius: 4px; background: var(--canvas);
-    cursor: pointer; display: grid; place-content: center; transition: background .15s, border-color .15s;
+  /* simulador incrustado */
+  .embed { margin: 0 0 24px; }
+  .embed-head {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+    gap: 8px 16px; margin-bottom: 10px;
   }
-  .check input::after {
-    content: ""; width: 10px; height: 10px; transform: scale(0); transition: transform .12s ease-out;
-    box-shadow: inset 1em 1em #fff;
-    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  .embed-head p { margin: 0; font-size: 0.875rem; color: var(--ink-faint); }
+  .embed-head a {
+    flex: none; font-size: 13px; font-weight: 500; text-decoration: none;
+    color: var(--canvas); background: var(--orange-deep);
+    padding: 7px 15px; border-radius: var(--r-sm); transition: background .15s;
   }
-  .check input:checked { background: var(--orange); border-color: var(--orange); }
-  .check input:checked::after { transform: scale(1); }
-  .check input:focus-visible { outline: 2px solid var(--orange-deep); outline-offset: 2px; }
-  .check span { font-size: 0.9375rem; line-height: 1.5; }
-  .check .sub { display: block; font-size: 0.8125rem; color: var(--ink-faint); margin-top: 3px; }
+  .embed-head a:hover { background: var(--orange-press); }
+  .embed-head a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .embed iframe {
+    display: block; width: 100%; height: 780px;
+    border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+    background: var(--canvas);
+  }
 
-  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
-  .send {
-    appearance: none; border: 0; background: var(--orange-deep); color: var(--canvas);
-    font-family: inherit; font-size: 14px; font-weight: 500; letter-spacing: 0.01em;
-    height: 42px; padding-inline: 24px; border-radius: var(--r-sm); cursor: pointer;
-    transition: background .15s;
+  .rows { display: flex; flex-direction: column; gap: 18px; }
+  .row { display: grid; grid-template-columns: 138px 1fr; gap: 18px; align-items: start; }
+  .row dt {
+    font-size: 11.5px; font-weight: 500; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--ink-faint); padding-top: 4px;
   }
-  .send:hover:not(:disabled) { background: var(--orange-press); }
-  .send:disabled { opacity: .6; cursor: default; }
-  .send:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-  .note { margin: 0; font-size: 0.8125rem; font-weight: 500; color: var(--orange-deep); }
+  .row dd { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--ink-soft); }
+  .row dd p { margin: 0 0 10px; }
+  .row dd p:last-child { margin-bottom: 0; }
+  .row dd b { color: var(--ink); font-weight: 500; }
+  @media (max-width: 620px) {
+    .row { grid-template-columns: 1fr; gap: 6px; }
+    .row dt { padding-top: 0; }
+  }
 
-  .thanks { display: none; }
-  .thanks h2 {
-    margin: 0 0 14px; font-family: Newsreader, Georgia, serif; font-weight: 400;
-    font-size: 1.75rem; letter-spacing: -0.014em;
+  .disclaimer {
+    margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line-strong);
+    font-size: 0.8125rem; font-style: italic; line-height: 1.6; color: var(--ink-faint);
   }
-  .thanks p { margin: 0 0 12px; font-size: 0.9375rem; line-height: 1.65; color: var(--ink-soft); }
-  .thanks p:last-child { margin-bottom: 0; }
-  .thanks .tick {
-    display: inline-grid; place-content: center;
-    width: 34px; height: 34px; border-radius: 50%;
-    background: var(--green); margin-bottom: 16px;
-  }
-  .thanks .tick::after {
-    content: ""; width: 15px; height: 15px; box-shadow: inset 1em 1em #fff;
-    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-  }
-  body.sent form { display: none; }
-  body.sent .thanks { display: block; }
 
-  .privacy { margin-top: var(--gap-band); padding-top: 28px; border-top: 1px solid var(--line); }
-  .privacy h2 {
-    margin: 0 0 18px; font-family: Newsreader, Georgia, serif; font-weight: 400;
-    font-size: 1.5rem; letter-spacing: -0.012em;
+  .closing { margin-top: var(--gap-band); padding-top: 28px; border-top: 1px solid var(--line); }
+  .closing h2 {
+    margin: 0 0 16px; font-family: Newsreader, Georgia, serif;
+    font-weight: 400; font-size: 1.5rem; letter-spacing: -0.012em;
   }
-  .privacy ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
-  .privacy li {
-    display: grid; grid-template-columns: auto 1fr; gap: 12px;
-    font-size: 0.9375rem; line-height: 1.6; color: var(--ink-soft);
-  }
-  .privacy li::before { content: ""; width: 6px; height: 6px; margin-top: 9px; border-radius: 50%; background: var(--line-strong); }
+  .closing p { margin: 0 0 13px; font-size: 0.9375rem; line-height: 1.65; color: var(--ink-soft); }
+  .closing p:last-child { margin-bottom: 0; }
   a.inline { color: var(--orange-deep); text-decoration: underline; text-underline-offset: 2px; }
   a.inline:hover { color: var(--orange-press); }
-
-  .aside-box { margin-top: 44px; background: var(--surface); border-radius: var(--r-md); padding: clamp(22px, 4vw, 32px); }
-  .aside-box h2 {
-    margin: 0 0 16px; font-family: Newsreader, Georgia, serif; font-weight: 400;
-    font-size: 1.5rem; letter-spacing: -0.012em;
-  }
-  .aside-box p { margin: 0 0 13px; font-size: 0.9375rem; line-height: 1.65; color: var(--ink-soft); }
-  .aside-box p:last-child { margin-bottom: 0; }
-  .aside-box p.wink {
-    margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line-strong);
-    font-style: italic; font-size: 0.875rem; color: var(--ink-faint);
-  }
 
   footer {
     margin-top: 52px; padding-block: 22px 60px; border-top: 1px solid var(--line);
@@ -212,257 +218,325 @@
     font-family: "IBM Plex Mono", ui-monospace, monospace;
     font-size: 11.5px; letter-spacing: 0.03em; color: var(--ink-faint);
   }
-  footer a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
-  footer a:hover { color: var(--orange-deep); border-color: var(--orange-deep); }
-
-  .hp { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; }
-
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
 
 <div class="col topbar">
   <div class="langs" role="group" aria-label="Idioma / Language">
-    <button type="button" id="lang-es" data-lang="es" aria-pressed="false">ES</button>
-    <button type="button" id="lang-en" data-lang="en" aria-pressed="true">EN</button>
+    <button type="button" data-lang="es" aria-pressed="false">ES</button>
+    <button type="button" data-lang="en" aria-pressed="true">EN</button>
   </div>
 </div>
 
 <header class="col">
-  <span class="tag">
-    <span class="dot" aria-hidden="true"></span>
-    <span data-es="Abierto hasta el 30 de septiembre" data-en="Open until 30 September">Abierto hasta el 30 de septiembre</span>
-  </span>
-
-  <h1 data-es="Idear por el gusto de idear" data-en="Ideas for the sake of having them">Idear por el gusto de idear</h1>
-
-  <div class="lede">
-    <p data-es="Esta página existe por curiosidad. No vendo nada y no hay nada detrás." data-en="This page exists out of curiosity. I'm not selling anything and there's nothing behind it.">Esta página existe por curiosidad. No vendo nada y no hay nada detrás.</p>
-    <p data-es="Tú dejas una idea, yo las junto todas y el 30 de septiembre las publico. Así no solo aportas la tuya: también ves las de los demás, y si alguna te llama, puedes hablar con quien la escribió." data-en="You leave an idea, I gather them all, and on 30 September I publish them. So you don't just contribute yours: you get to see everyone else's, and if one catches your eye, you can talk to whoever wrote it.">Tú dejas una idea, yo las junto todas y el 30 de septiembre las publico. Así no solo aportas la tuya: también ves las de los demás, y si alguna te llama, puedes hablar con quien la escribió.</p>
-  </div>
+  <span class="tag"><span class="dot" aria-hidden="true"></span><span id="t-tag"></span></span>
+  <h1 id="t-title"></h1>
+  <div class="lede" id="t-lede"></div>
 </header>
 
 <section class="band">
-  <div class="col">
-    <p data-es="¿Qué te gustaría que existiera en lo tuyo y no existe?" data-en="What would you like to exist in your world that doesn't?">¿Qué te gustaría que existiera en lo tuyo y no existe?</p>
-  </div>
+  <div class="col"><p id="t-question"></p></div>
 </section>
 
-<div class="col after-band">
-  <p data-es="Puede ser algo enorme o una tontería que te ahorraría una tarde a la semana. No tiene que ser una idea para dominar el mundo. Puede ser simplemente una idea que mejore tu mundo." data-en="It can be something huge, or a small annoyance that costs you an afternoon a week. It doesn't have to be an idea that changes the world. It can just be an idea that improves yours.">Puede ser algo enorme o una tontería que te ahorraría una tarde a la semana. No tiene que ser una idea para dominar el mundo. Puede ser simplemente una idea que mejore tu mundo.</p>
-</div>
+<div class="col after-band" id="t-after"></div>
 
 <div class="col">
-  <div class="sheet">
-
-    <form id="idea-form" novalidate>
-      <div class="hp" aria-hidden="true">
-        <label for="botcheck">No rellenar</label>
-        <input type="checkbox" name="botcheck" id="botcheck" tabindex="-1" autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label class="lbl" for="idea"><span data-es="Tu idea" data-en="Your idea">Tu idea</span></label>
-        <textarea id="idea" name="idea" required
-          data-es-ph="Escríbela como te salga. No hace falta que esté pulida ni que sepas si se puede hacer."
-          data-en-ph="Write it however it comes out. It doesn't need to be polished, and you don't need to know whether it's possible."
-          placeholder="Escríbela como te salga. No hace falta que esté pulida ni que sepas si se puede hacer."></textarea>
-        <span class="counter" id="counter">0</span>
-      </div>
-
-      <div class="field">
-        <label class="lbl" for="campo">
-          <span data-es="¿De qué campo vienes?" data-en="What field are you coming from?">¿De qué campo vienes?</span>
-          <span class="opt" data-es="opcional" data-en="optional">opcional</span>
-        </label>
-        <input type="text" id="campo" name="campo"
-          data-es-ph="Psicología, un taller, sanidad, un aula, ingeniería, lo que sea"
-          data-en-ph="Psychology, a workshop, healthcare, a classroom, engineering, anything"
-          placeholder="Psicología, un taller, sanidad, un aula, ingeniería, lo que sea">
-      </div>
-
-      <div class="field">
-        <label class="lbl" for="nombre">
-          <span data-es="Nombre" data-en="Name">Nombre</span>
-          <span class="opt" data-es="opcional" data-en="optional">opcional</span>
-        </label>
-        <input type="text" id="nombre" name="nombre"
-          data-es-ph="Déjalo en blanco si prefieres ser anónimo"
-          data-en-ph="Leave it blank if you'd rather stay anonymous"
-          placeholder="Déjalo en blanco si prefieres ser anónimo">
-      </div>
-
-      <div class="field">
-        <label class="lbl" for="contacto">
-          <span data-es="Contacto o LinkedIn" data-en="Contact or LinkedIn">Contacto o LinkedIn</span>
-          <span class="opt" data-es="opcional" data-en="optional">opcional</span>
-        </label>
-        <input type="text" id="contacto" name="contacto"
-          data-es-ph="Correo, LinkedIn, lo que uses"
-          data-en-ph="Email, LinkedIn, whatever you use"
-          placeholder="Correo, LinkedIn, lo que uses">
-        <p class="help" data-es="Solo si quieres que pueda escribirte. Si lo dejas vacío, tu idea cuenta exactamente igual." data-en="Only if you want me to be able to reach you. Leave it empty and your idea counts exactly the same.">Solo si quieres que pueda escribirte. Si lo dejas vacío, tu idea cuenta exactamente igual.</p>
-      </div>
-
-      <div class="consent">
-        <p class="consent-head" data-es="Tú decides qué sale a la luz" data-en="You decide what goes public">Tú decides qué sale a la luz</p>
-
-        <label class="check" for="c-idea">
-          <input type="checkbox" id="c-idea" name="publicar_idea" value="Sí">
-          <span data-es="Publica mi idea el 30 de septiembre" data-en="Publish my idea on 30 September">Publica mi idea el 30 de septiembre</span>
-        </label>
-
-        <label class="check" for="c-nombre">
-          <input type="checkbox" id="c-nombre" name="publicar_contacto" value="Sí">
-          <span>
-            <span data-es="Publica también mi nombre y mi contacto" data-en="Publish my name and contact too">Publica también mi nombre y mi contacto</span>
-            <span class="sub" data-es="Para que quien lea tu idea pueda encontrarte." data-en="So whoever reads your idea can find you.">Para que quien lea tu idea pueda encontrarte.</span>
-          </span>
-        </label>
-
-        <label class="check" for="c-contacto">
-          <input type="checkbox" id="c-contacto" name="permite_contacto" value="Sí">
-          <span data-es="Puedes escribirme si tienes dudas sobre mi idea" data-en="You can write to me if you have questions about my idea">Puedes escribirme si tienes dudas sobre mi idea</span>
-        </label>
-      </div>
-
-      <div class="actions">
-        <button type="submit" class="send" id="send" data-es="Enviar idea" data-en="Send idea">Enviar idea</button>
-        <p class="note" id="note" hidden></p>
-      </div>
-    </form>
-
-    <div class="thanks" id="thanks" role="status">
-      <span class="tick" aria-hidden="true"></span>
-      <h2 data-es="Recibida. Gracias." data-en="Received. Thank you.">Recibida. Gracias.</h2>
-      <p data-es="Tu idea ya está en mi correo. La leeré, como todas." data-en="Your idea is in my inbox. I'll read it, like all the others.">Tu idea ya está en mi correo. La leeré, como todas.</p>
-      <p data-es="El 30 de septiembre publico las ideas de quienes hayan querido hacerlas públicas. Si marcaste esa casilla, la tuya estará ahí." data-en="On 30 September I'll publish the ideas from everyone who chose to make theirs public. If you ticked that box, yours will be there.">El 30 de septiembre publico las ideas de quienes hayan querido hacerlas públicas. Si marcaste esa casilla, la tuya estará ahí.</p>
-    </div>
-
-  </div>
+  <nav class="toc" aria-labelledby="toc-h">
+    <h2 id="toc-h"></h2>
+    <ol id="t-toc"></ol>
+  </nav>
+  <div id="projects"></div>
 </div>
 
-<section class="col privacy">
-  <h2 data-es="Qué pasa con lo que envías" data-en="What happens to what you send">Qué pasa con lo que envías</h2>
-  <ul>
-    <li data-es="Llega a mi correo. No se publica nada de forma automática." data-en="It reaches my inbox. Nothing is published automatically.">Llega a mi correo. No se publica nada de forma automática.</li>
-    <li data-es="Si no marcas las casillas, tu idea no se publica y tu nombre tampoco." data-en="If you don't tick the boxes, neither your idea nor your name is published.">Si no marcas las casillas, tu idea no se publica y tu nombre tampoco.</li>
-    <li data-es="La idea sigue siendo tuya. No me comprometo a construir nada." data-en="The idea stays yours. I'm not promising to build anything.">La idea sigue siendo tuya. No me comprometo a construir nada.</li>
-    <li data-es="El formulario viaja a través de Web3Forms, que hace de intermediario hasta mi correo." data-en="The form travels through Web3Forms, which acts as an intermediary to my inbox.">El formulario viaja a través de Web3Forms, que hace de intermediario hasta mi correo.</li>
-    <li>
-      <span><span data-es="¿Quieres que lo borre? Escríbeme y lo borro, sin preguntar por qué:" data-en="Want it deleted? Write to me and I'll delete it, no questions asked:">¿Quieres que lo borre? Escríbeme y lo borro, sin preguntar por qué:</span> <a class="inline" id="mailto" href="mailto:nserranovasco@gmail.com">nserranovasco@gmail.com</a></span>
-    </li>
-    <li data-es="No envíes información confidencial ni nada que quieras patentar." data-en="Please don't send confidential information or anything you intend to patent.">No envíes información confidencial ni nada que quieras patentar.</li>
-  </ul>
-</section>
-
-<section class="col">
-  <div class="aside-box">
-    <h2 data-es="¿No sabes qué es Claude?" data-en="Not sure what Claude is?">¿No sabes qué es Claude?</h2>
-    <p data-es="Es una inteligencia artificial, de la misma familia que ChatGPT. Lo que la hace relevante aquí es que no solo escribe texto: también construye cosas. Programas pequeños, páginas, herramientas que hacen un trabajo concreto, a partir de una descripción en lenguaje normal." data-en="It's an artificial intelligence, the same family as ChatGPT. What makes it relevant here is that it doesn't only write text: it also builds things. Small programs, pages, tools that do one specific job, starting from a description in plain language.">Es una inteligencia artificial, de la misma familia que ChatGPT. Lo que la hace relevante aquí es que no solo escribe texto: también construye cosas. Programas pequeños, páginas, herramientas que hacen un trabajo concreto, a partir de una descripción en lenguaje normal.</p>
-    <p data-es="Y por eso pregunto. Hace unos años, para que una idea pequeña existiera hacía falta un equipo y varios meses. Hoy muchas caben en una tarde. Lo difícil ya no es construirlas: es que se le ocurran a alguien que conozca de verdad el problema." data-en="Which is why I'm asking. A few years ago, making a small idea real took a team and several months. Today many of them fit into an afternoon. The hard part is no longer building them: it's that they have to occur to someone who actually knows the problem.">Y por eso pregunto. Hace unos años, para que una idea pequeña existiera hacía falta un equipo y varios meses. Hoy muchas caben en una tarde. Lo difícil ya no es construirlas: es que se le ocurran a alguien que conozca de verdad el problema.</p>
-    <p data-es="No trabajo para ellos y nadie me paga por contar esto." data-en="I don't work for them and nobody is paying me to say this.">No trabajo para ellos y nadie me paga por contar esto.</p>
-    <p class="wink" data-es="(Si te lo estás preguntando: sí, parte de este último cuadro lo escribió una IA. A veces escribe mejor que yo.)" data-en="(In case you're wondering: yes, part of this last box was written by an AI. Sometimes it writes better than I do.)">(Si te lo estás preguntando: sí, parte de este último cuadro lo escribió una IA. A veces escribe mejor que yo.)</p>
-  </div>
+<section class="col closing">
+  <h2 id="t-closing-h"></h2>
+  <div id="t-closing"></div>
 </section>
 
 <footer class="col">
   <span>Nicolás Serrano · Leganés, Madrid</span>
-  <span data-es="Cierra el 30 de septiembre de 2026" data-en="Closes 30 September 2026">Cierra el 30 de septiembre de 2026</span>
+  <span id="t-foot"></span>
 </footer>
 
 <script>
 (function () {
-  var ACCESS_KEY = "23a54d5c-9391-47ba-b79a-7aee7dd61c70";
+  var T = {
+    tag:   { es: "Experimento cerrado · 30 de septiembre de 2026", en: "Experiment closed · 30 September 2026" },
+    title: { es: "Idear por el gusto de idear", en: "Ideas for the sake of having them" },
+    lede: {
+      es: [
+        ["zero", "Pregunté a desconocidos qué les gustaría que existiera. Recibí cero respuestas."],
+        ["", "Dije que volvería el 30 de septiembre pasara lo que pasara, así que aquí está. Podría contarte que esto dice algo sobre LinkedIn; probablemente dice más sobre el alcance que tiene un post mío, y sobre que pedí trabajo real a cambio de nada."],
+        ["", "Pero no quiero dejar a nadie con las manos vacías. Así que hago lo que pedí que hicierais vosotros y contesto yo mismo la pregunta. Cada uno de estos proyectos empezó con alguien diciendo «ojalá existiera esto»."]
+      ],
+      en: [
+        ["zero", "I asked strangers what they'd like to exist. I got zero answers."],
+        ["", "I said I'd come back on 30 September either way, so here it is. I could tell you this says something about LinkedIn; it probably says more about the reach of a post of mine, and about the fact that I asked for real work in return for nothing."],
+        ["", "But I don't want to leave anyone empty-handed. So I'll do the thing I asked you to do and answer my own question. Every one of these projects started with someone saying \"I wish this existed\"."]
+      ]
+    },
+    question: {
+      es: "¿Qué te gustaría que existiera en lo tuyo y no existe?",
+      en: "What would you like to exist in your world that doesn't?"
+    },
+    after: {
+      es: ["El formulario está cerrado. La pregunta no.",
+           "Abajo están mis respuestas: seis proyectos, qué problema resuelve cada uno, cómo funciona por dentro y qué salió mal haciéndolo. Esto último es la parte que casi nadie cuenta y suele ser la más útil."],
+      en: ["The form is closed. The question isn't.",
+           "Below are my own answers: six projects, the problem each one solves, how it works underneath, and what went wrong while building it. That last part is the one almost nobody tells, and it's usually the useful one."]
+    },
+    toc: { es: "En esta página", en: "On this page" },
+    closingH: { es: "Una última cosa", en: "One last thing" },
+    closing: {
+      es: ["Ninguna captura de pantalla de esta página muestra datos reales. Donde hay clientes de por medio, lo que se cuenta está publicado con su permiso y sin nombres, sin cifras de negocio y sin un solo dato de una persona real.",
+           "Si algo de aquí te ha dado una idea, escríbeme. Sigo teniendo la misma curiosidad que cuando monté esto."],
+      en: ["No screenshot on this page shows real data. Where clients are involved, what's told here is published with their permission, with no names, no business figures and not a single piece of data belonging to a real person.",
+           "If anything here gave you an idea, write to me. I'm just as curious as I was when I set this up."]
+    },
+    foot: { es: "Cerrado el 30 de septiembre de 2026", en: "Closed 30 September 2026" },
+    labels: {
+      problem: { es: "El problema", en: "The problem" },
+      how:     { es: "Cómo funciona", en: "How it works" },
+      best:    { es: "Lo más interesante", en: "The interesting part" },
+      wrong:   { es: "Qué salió mal", en: "What went wrong" },
+      state:   { es: "Estado", en: "Status" }
+    }
+  };
+
+  var P = [
+    {
+      id: "nexus",
+      name: { es: "Nexus", en: "Nexus" },
+      chip: "proto",
+      status: { es: "Prototipo", en: "Prototype" },
+      lead: {
+        es: "Quería una IA mía. No una cuenta en la de otro: una de verdad. Un modelo de código abierto instalado en mi propia máquina, que moldeo y educo yo, que no me cuesta nada por mensaje y que no entrega mis conversaciones a ninguna empresa. Luego le di un cuerpo.",
+        en: "I wanted my own AI. Not an account with somebody else's — a real one. An open-source model installed on my own machine, that I shape and teach myself, that costs me nothing per message, and that hands my conversations to no company. Then I gave it a body."
+      },
+      imgs: [
+        { src: "img/nexus-cara.webp", w: 1200, h: 1063,
+          alt: { es: "La cara del robot: dos ojos azules sobre pantallas redondas y una boca abierta, sobre fondo negro.",
+                 en: "The robot's face: two blue eyes on round screens and an open mouth, on a black background." },
+          cap: { es: "Los tres paneles del robot. No es una recreación: la imagen está generada por la misma función que escribe en las pantallas físicas, volcada a fichero en vez de al bus.",
+                 en: "The robot's three panels. Not a recreation: the image is generated by the very function that drives the physical screens, written to a file instead of to the bus." } },
+        { src: "img/nexus-animos.webp", w: 1600, h: 709,
+          alt: { es: "Rejilla con los ocho estados de ánimo de la cara del robot.",
+                 en: "Grid showing the robot face's eight moods." },
+          cap: { es: "Los ocho estados de ánimo. La cara no son imágenes guardadas: es geometría que se calcula en cada fotograma.",
+                 en: "The eight moods. The face isn't stored images: it's geometry computed for every frame." } }
+      ],
+      rows: [
+        { k: "problem", es: "<p>Los asistentes de voz que se compran hechos tienen tres problemas a la vez: <b>no recuerdan nada</b> de una conversación a otra, <b>no están en ningún sitio</b> (son una voz saliendo de un altavoz cualquiera) y <b>no son de nadie</b>: todo lo que les dices se procesa en un servidor ajeno.</p><p>Nexus es lo contrario de esas tres cosas: memoria que persiste, presencia física encima de la mesa, y los datos se quedan en casa.</p>",
+                  en: "<p>Off-the-shelf voice assistants have three problems at once: they <b>remember nothing</b> from one conversation to the next, they <b>aren't anywhere</b> (just a voice coming out of some speaker), and they <b>belong to nobody</b>: everything you say to them is processed on someone else's server.</p><p>Nexus is the opposite of all three: memory that persists, a physical presence on the desk, and data that stays home.</p>" },
+        { k: "how", es: "<p>Un PC hace de cerebro y una Raspberry Pi hace de cara, oídos y boca, conectados por red.</p><p>El recorrido de una frase: el micrófono capta audio, un detector decide cuándo has terminado de hablar, un modelo lo pasa a texto, se buscan recuerdos relevantes, un modelo de lenguaje redacta la respuesta, un sintetizador la convierte en voz, suena y la boca se mueve con ella.</p><p><b>Qué hace la IA:</b> transcribir, redactar, generar la voz y decidir qué merece recordarse. <b>Qué no hace:</b> no ve nada (no hay cámara), no dibuja la cara (es geometría calculada, no imágenes generadas), no decide sola cuándo hablar, y no tiene acceso a internet ni a mis archivos.</p><p>Funciona sin conexión. Usa un modelo en la nube si hay internet y uno local si no, y el cambio es automático.</p>",
+                  en: "<p>A PC is the brain and a Raspberry Pi is the face, ears and mouth, connected over the network.</p><p>The path of a sentence: the microphone picks up audio, a detector decides when you've finished speaking, a model turns it into text, relevant memories are retrieved, a language model writes the reply, a synthesiser turns it into speech, it plays, and the mouth moves along with it.</p><p><b>What the AI does:</b> transcribe, write the reply, generate the voice, and decide what's worth remembering. <b>What it doesn't:</b> it sees nothing (there's no camera), it doesn't draw the face (that's computed geometry, not generated images), it doesn't decide on its own when to speak, and it has no access to the internet or to my files.</p><p>It works offline. It uses a cloud model when there's internet and a local one when there isn't, and the switch is automatic.</p>" },
+        { k: "best", es: "<p><b>Poder interrumpirle mientras habla, sin cancelador de eco.</b></p><p>Si el robot tiene el micrófono abierto mientras habla, se oye a sí mismo. Lo normal es montar un cancelador de eco, que es complicado. La alternativa es comparar lo que oye con lo que está diciendo, pero para eso hay que saber <i>exactamente cuándo</i> sonó cada trozo, y entre que el PC envía el audio y el altavoz lo reproduce hay red y varios buffers de por medio.</p><p>La solución: el robot avisa justo después de entregar cada trozo a su tarjeta de sonido, y el PC usa la llegada de ese aviso como el instante «esto está sonando». No hay que sincronizar relojes entre las dos máquinas, porque el retardo de la red queda dentro de la medida, que es justo lo que interesa.</p>",
+                  en: "<p><b>Being able to cut it off mid-sentence, with no echo canceller.</b></p><p>If the robot keeps its microphone open while it speaks, it hears itself. The usual fix is an echo canceller, which is complicated. The alternative is to compare what it hears with what it's saying — but for that you need to know <i>exactly when</i> each chunk played, and between the PC sending the audio and the speaker playing it there's a network and several buffers.</p><p>The solution: the robot reports back right after handing each chunk to its own sound card, and the PC treats the arrival of that report as the moment \"this is playing now\". No clock synchronisation between the two machines is needed, because the network delay falls inside the measurement — which is exactly what you want.</p>" },
+        { k: "wrong", es: "<p><b>Se convirtió en un loro.</b> Empezó a responder repitiendo lo que le acababan de decir. Esa respuesta entraba en su contexto y le enseñaba a repetir otra vez. En dos turnos, bucle. Cualquier sistema que aprende de su propia salida puede entrar en espiral, y hay que cortarlo explícitamente.</p><p><b>Se puso a hablar solo.</b> Por altavoz, el micrófono captaba el final de sus propias frases y las tomaba por mías. Encadenó una conversación consigo mismo.</p><p><b>Un fallo de hardware que no era de hardware.</b> Una pantalla se quedaba negra sin dar un solo error. Revisé el cableado tres veces. Resultó que el reloj del bus cambia de nivel al empezar la primera transferencia y no al configurarlo, así que la pantalla leía un bit de más y descartaba todo. Se arregló con una línea.</p><p><b>Medir antes de optimizar.</b> Dibujar un ojo costaba 98 milisegundos. Di por hecho que era el volumen de píxeles; medí y un tercio se iba en una sola operación que no sospechaba. Quedó en 13.</p>",
+                  en: "<p><b>It turned into a parrot.</b> It started replying by repeating what it had just been told. That reply went into its own context and taught it to repeat again. Two turns later, a loop. Any system that learns from its own output can spiral, and you have to cut that off explicitly.</p><p><b>It started talking to itself.</b> On speakers, the microphone picked up the tail of its own sentences and took them for mine. It held a whole conversation with itself.</p><p><b>A hardware fault that wasn't hardware.</b> One screen stayed black without a single error. I checked the wiring three times. It turned out the bus clock changes level when the first transfer starts, not when you configure it, so the screen read one extra bit and discarded everything. One line of code fixed it.</p><p><b>Measure before optimising.</b> Drawing one eye took 98 milliseconds. I assumed it was the pixel count; I measured, and a third of it went into a single operation I never suspected. It ended at 13.</p>" },
+        { k: "state", es: "<p>Prototipo funcionando, usado solo por mí. El cerebro está completo, las tres pantallas funcionan y la cara tiene ocho estados de ánimo. Falta instalar el micrófono y el altavoz propios del robot: hoy la voz entra y sale por el ordenador.</p><p>No es un producto, no está empaquetado y no lo ha usado nadie más. No resuelve ningún problema comercial, y en buena medida ese es el sentido.</p>",
+                  en: "<p>A working prototype, used only by me. The brain is complete, the three screens work, and the face has eight moods. The robot's own microphone and speaker are still to be fitted: for now the voice goes in and out through the computer.</p><p>It's not a product, it isn't packaged, and nobody else has used it. It solves no commercial problem whatsoever, and that's largely the point.</p>" }
+      ]
+    },
+    {
+      id: "rocketry",
+      name: { es: "Cohetería", en: "Rocketry" },
+      chip: "none",
+      status: { es: "Todavía no existe", en: "Doesn't exist yet" },
+      lead: {
+        es: "Diseñé un cohete en OpenRocket. Lo que me interesa es lo que le falta. El programa entero todavía no existe, pero aquí abajo tienes un trozo funcionando: cámbiale las aletas y mira qué pasa.",
+        en: "I designed a rocket in OpenRocket. What interests me is what it's missing. The whole program doesn't exist yet, but here below is a working piece of it: change the fins and see what happens."
+      },
+      embed: {
+        src: "simulador.html",
+        title: { es: "Simulador de diseño de cohetes", en: "Rocket design simulator" },
+        intro: { es: "Es de verdad: calcula masa, centro de gravedad, centro de presión y apogeo a partir de lo que elijas.",
+                 en: "It's real: it computes mass, centre of gravity, centre of pressure and apogee from whatever you choose." },
+        open: { es: "Abrir aparte", en: "Open separately" }
+      },
+      rows: [
+        { k: "problem", es: "<p>Las herramientas que existen para diseñar y simular cohetes amateur funcionan, pero están hechas para el caso general. En cuanto quieres algo específico de tu motor, de tu geometría o de tu forma de trabajar, te toca adaptarte tú a la herramienta en vez de al revés.</p><p>Y la parte visual se queda muy atrás: ves números y curvas donde te gustaría ver el cohete.</p>",
+                  en: "<p>The existing tools for designing and simulating amateur rockets work, but they're built for the general case. The moment you want something specific to your motor, your geometry or the way you work, you end up adapting to the tool instead of the other way around.</p><p>And the visual side lags far behind: you get numbers and curves where you'd like to see the rocket.</p>" },
+        { k: "how", es: "<p>El programa completo no está hecho. Lo que hay arriba es un primer trozo real: dibuja el cohete, calcula su masa y su centro de gravedad, sitúa el centro de presión por el método de Barrowman e integra un vuelo vertical para estimar el apogeo. Cabe entero en un solo fichero y funciona sin conexión.</p><p>Lo que falta es lo grande: simulaciones visuales que se puedan mirar y entender, y el motor modelado en 3D en vez de descrito en una tabla.</p>",
+                  en: "<p>The full program isn't built. What's above is a first real piece of it: it draws the rocket, computes its mass and centre of gravity, places the centre of pressure using the Barrowman method, and integrates a vertical flight to estimate apogee. It fits in a single file and works offline.</p><p>What's missing is the big part: visual simulations you can look at and understand, and the motor modelled in 3D instead of described in a table.</p>" },
+        { k: "state", es: "<p>Un cohete diseñado en OpenRocket y el simulador de arriba. Del programa que quiero de verdad, esto es la primera pieza. Es el proyecto de esta lista que más me apetece construir.</p>",
+                  en: "<p>A rocket designed in OpenRocket, and the simulator above. Of the program I actually want, this is the first piece. It's the project on this list I most want to build.</p>" }
+      ]
+    },
+    {
+      id: "nhottz",
+      name: { es: "Nhottz", en: "Nhottz" },
+      chip: "live",
+      status: { es: "En uso diario", en: "In daily use" },
+      lead: {
+        es: "Estaba cansado de un calendario para las clases, una app de recordatorios para las entregas, otra app para los apuntes y la carpeta de descargas para todo lo demás. Cuatro herramientas, y ninguna contesta la única pregunta que importa antes de un examen. Así que estoy haciendo la definitiva para Windows, con todo en una sola pantalla.",
+        en: "I was tired of a calendar for classes, a reminders app for deadlines, a notes app for notes, and a downloads folder for everything else. Four tools, and not one of them answers the only question that matters before an exam. So I'm building the definitive one for Windows, with all of it on a single screen."
+      },
+      imgs: [
+        { src: "img/nhottz.webp", w: 1583, h: 979,
+          alt: { es: "Panel de Nhottz: calendario del mes, detalle del día con clases y apuntes, y panel de próximos exámenes.",
+                 en: "The Nhottz dashboard: month calendar, day detail with classes and notes, and an upcoming-exams panel." },
+          cap: { es: "La pantalla principal. Asignaturas, aulas, exámenes y apuntes son inventados: es una copia de demostración creada desde cero para esta captura, no mi calendario.",
+                 en: "The main screen. Courses, rooms, exams and notes are invented: this is a demo copy built from scratch for this screenshot, not my own calendar." } }
+      ],
+      rows: [
+        { k: "problem", es: "<p>El horario está en el calendario del campus, las fechas de examen en un PDF que te mandan, los apuntes en una tablet y los documentos en la carpeta de descargas. Nada está conectado con nada.</p><p>La pregunta que de verdad importa —<b>qué entra en el próximo examen y de qué tengo apuntes</b>— no la contesta ninguna de esas herramientas. Se rehace cada cuatrimestre y se pierde en cuanto hay un cambio.</p>",
+                  en: "<p>The timetable is in the campus calendar, the exam dates are in a PDF somebody emails you, the notes are on a tablet and the documents are in the downloads folder. Nothing is connected to anything.</p><p>The question that actually matters — <b>what's on the next exam and do I have notes for it</b> — is answered by none of those tools. You rebuild it every term and lose it the moment something changes.</p>" },
+        { k: "how", es: "<p>Python, con un servidor web que corre en el propio ordenador y una ventana de escritorio sin barra de direcciones. Una base de datos ligera para las búsquedas. Sin nube, sin cuenta y sin conexión a internet.</p><p>La regla que lo sostiene todo: <b>los ficheros son la única fuente de verdad</b>, y la base de datos es solo un índice que se puede borrar y reconstruir.</p><p>Y algo que conviene decir porque es contraintuitivo: <b>dentro del programa no hay ninguna IA.</b> Ni modelos de lenguaje, ni OCR, ni nada entrenado. Lo que parece inteligente —interpretar «examen el 26 de noviembre, temas 1 a 4» o adivinar a qué asignatura pertenece un PDF por su nombre— son reglas escritas explícitamente. La IA se usó para escribir el código; no viaja dentro de la aplicación. Fue deliberado: el programa tiene que dar siempre la misma respuesta y funcionar sin internet.</p>",
+                  en: "<p>Python, with a web server running on the machine itself and a desktop window with no address bar. A lightweight database for searching. No cloud, no account, no internet connection.</p><p>The rule that holds it all up: <b>the files are the single source of truth</b>, and the database is only an index that can be deleted and rebuilt.</p><p>And something worth saying because it's counter-intuitive: <b>there is no AI inside the program.</b> No language models, no OCR, nothing trained. What looks intelligent — reading \"exam on 26 November, topics 1 to 4\", or guessing which course a PDF belongs to from its filename — is explicitly written rules. AI was used to write the code; it doesn't travel inside the application. That was deliberate: the program has to give the same answer every time and work with no internet.</p>" },
+        { k: "best", es: "<p>Que se pueda borrar la base de datos entera y la aplicación se reconstruya sola a partir de los ficheros, sin perder nada.</p><p>El corolario es lo que de verdad importa: los datos se pueden abrir y editar con el bloc de notas, la aplicación respeta esos cambios, y <b>si el programa desaparece mañana el trabajo sigue ahí</b>. Nadie queda atrapado en la herramienta.</p>",
+                  en: "<p>You can delete the entire database and the application rebuilds itself from the files, losing nothing.</p><p>The corollary is what actually matters: the data can be opened and edited in a plain text editor, the application respects those edits, and <b>if the program disappears tomorrow the work is still there</b>. Nobody gets trapped in the tool.</p>" },
+        { k: "wrong", es: "<p>Un fallo de «guardo el documento nuevo y sigo viendo el viejo» no estaba en el guardado, sino en que el visor reutilizaba una copia en caché. Lo encontré midiendo el fichero antes y después, no razonando.</p><p>Un error mío al escribir un fichero dejó el horario ilegible. Lo grave vino después: las funciones de guardado, al no poder leerlo, lo habrían dado por vacío y habrían borrado el resto del horario en el siguiente guardado. Ahora <b>se niegan a escribir sobre algo que no entienden</b>, y comprueban lo que escriben antes de guardarlo.</p><p>Las pruebas automáticas pueden pasar todas y el fallo seguir ahí, porque probaban el atajo y no el camino que recorre una persona.</p><p>Una operación tardaba 16 segundos y parecía un botón roto. La causa era releer documentos enteros para responder a una pregunta de sí o no. Pasó a un segundo.</p><p>Y lo que más me sirvió: <b>decir que no a funciones</b> —sobre todo a meter IA dentro— es lo que hizo que el proyecto se pudiera terminar.</p>",
+                  en: "<p>A \"I save the new document and still see the old one\" bug wasn't in the saving at all: the viewer was reusing a cached copy. I found it by measuring the file before and after, not by reasoning about it.</p><p>A mistake of mine while writing a file left the timetable unreadable. The serious part came next: the save functions, unable to read it, would have treated it as empty and wiped the rest of the timetable on the following save. Now they <b>refuse to write over something they don't understand</b>, and they verify what they write before saving it.</p><p>Automated tests can all pass with the bug still there, because they were testing the shortcut instead of the path a person actually takes.</p><p>One operation took 16 seconds and looked like a broken button. The cause was re-reading entire documents to answer a yes-or-no question. It went down to one second.</p><p>And the one that helped most: <b>saying no to features</b> — above all to putting AI inside — is what made the project finishable.</p>" },
+        { k: "state", es: "<p>Funcionando y en uso real diario, por una sola persona, con un horario y unos exámenes de verdad. Se abre con doble clic como cualquier programa. Unas 6.800 líneas de Python y 542 pruebas automáticas.</p><p>No es un producto para terceros: no hay instalador, ni usuarios, ni contraseñas. Está pensado para un solo usuario en su propio ordenador, y por eso mismo no debe ponerse en internet tal como está.</p>",
+                  en: "<p>Working and in real daily use, by one person, with a real timetable and real exams. It opens with a double click like any other program. Around 6,800 lines of Python and 542 automated tests.</p><p>It isn't a product for other people: no installer, no users, no passwords. It's built for a single user on their own machine, which is exactly why it shouldn't be put on the internet as it is.</p>" }
+      ]
+    },
+    {
+      id: "clinic",
+      name: { es: "Software para una clínica dental", en: "Software for a dental clinic" },
+      chip: "live",
+      status: { es: "En producción", en: "In production" },
+      lead: {
+        es: "Miles de fichas de pacientes repartidas entre una hoja de cálculo, una agenda de papel y la memoria de una persona. Y recordatorios de cita que solo ocurrían si alguien tenía una tarde libre para llamar uno por uno.",
+        en: "Thousands of patient records spread across a spreadsheet, a paper diary and one person's memory. And appointment reminders that only happened if somebody had a free afternoon to call them one by one."
+      },
+      imgs: [
+        { src: "img/clinica.webp", w: 1800, h: 1159,
+          alt: { es: "Agenda del día del programa de la clínica, con tres columnas de sillón y las citas repartidas por horas.",
+                 en: "The clinic software's daily schedule, with three chair columns and appointments laid out by hour." },
+          cap: { es: "La agenda del día, con un sillón por columna. Todo lo que se ve —clínica, pacientes, doctores y horarios— está inventado para esta captura. Ningún dato procede de la clínica real.",
+                 en: "The daily schedule, one chair per column. Everything visible — clinic, patients, doctors and times — is invented for this screenshot. None of it comes from the real clinic." } }
+      ],
+      rows: [
+        { k: "problem", es: "<p>Quien atiende el teléfono y la agenda en una clínica pequeña pierde tiempo cada día en tres cosas: <b>buscar a alguien</b>, <b>recordar quién debía volver</b> para una revisión, y <b>llamar uno por uno</b> para confirmar las citas del día siguiente.</p><p>Un Excel no avisa de nada: no sabe quién lleva un año sin venir. Y una llamada que no se coge no se recupera.</p>",
+                  en: "<p>Whoever answers the phone and keeps the diary in a small clinic loses time every day on three things: <b>finding someone</b>, <b>remembering who was due back</b> for a check-up, and <b>calling one by one</b> to confirm the next day's appointments.</p><p>A spreadsheet warns you about nothing: it doesn't know who hasn't been in for a year. And a call nobody picks up is simply lost.</p>" },
+        { k: "how", es: "<p>Es una aplicación web que se abre en el navegador. Por debajo: <b>front end</b> en React y TypeScript, <b>back end</b> con base de datos Postgres alojada como servicio, acceso con usuario y contraseña, y la <b>API oficial de WhatsApp Business de Meta</b> para los mensajes, a través de un proveedor intermediario.</p><p><b>Qué hace la IA dentro del producto: nada.</b> No hay modelo, ni predicción, ni texto generado. Los mensajes son plantillas fijas aprobadas previamente y los números que se ven en pantalla salen de la base de datos. Si algo no se puede calcular con los datos, no se muestra.</p><p>Donde sí hubo IA fue en la construcción: el programa se escribió trabajando con un asistente de programación, que es una herramienta de desarrollo, no una parte del producto. Quien usa el programa nunca habla con una IA. Merece la pena decirlo, porque hoy se asume lo contrario.</p>",
+                  en: "<p>It's a web application that opens in the browser. Underneath: a <b>front end</b> in React and TypeScript, a <b>back end</b> with a hosted Postgres database, username-and-password access, and <b>Meta's official WhatsApp Business API</b> for the messages, through an intermediary provider.</p><p><b>What the AI does inside the product: nothing.</b> No model, no prediction, no generated text. The messages are fixed, pre-approved templates, and the numbers on screen come from the database. If something can't be computed from the data, it isn't shown.</p><p>Where AI did come in was the building: the program was written working with a coding assistant, which is a development tool, not part of the product. Nobody using the program ever talks to an AI. Worth saying, because these days people assume the opposite.</p>" },
+        { k: "best", es: "<p>El código de identificación fiscal italiano se calcula a partir del apellido, el nombre, la fecha de nacimiento, el sexo y el municipio de nacimiento, y lleva un carácter de control al final. Eso lo convierte en algo poco común: <b>un dato que se valida a sí mismo y que se puede leer al revés.</b></p><p>Se usó para dos cosas que no eran su propósito. El archivo antiguo guardaba apellido y nombre en un solo campo, y con tres palabras hay dos cortes posibles y los dos parecen razonables. Probando cada corte contra el código, <b>el propio dato dice cuál es el correcto</b>: resolvió más del 70% de los casos sin intervención humana, y descubrió fichas donde el nombre y el apellido estaban invertidos desde el principio.</p><p>La segunda: la fecha de nacimiento no existía en el archivo viejo, pero está dentro del código. Descifrándolo se recuperaron cientos de fechas de nacimiento de datos que ya estaban ahí y nadie había leído.</p><p>Para validarlo no me fié de mi criterio: reconstruí los datos de entrada a partir del código de cada ficha, lo recalculé y comparé. Coincidió en un 98% sobre más de mil seiscientos casos. El resto eran errores del archivo original, incluidos códigos mal escritos desde el día uno.</p><p>Pero la decisión de diseño de la que estoy más satisfecho es otra, más aburrida: <b>la lista de mensajes que se pueden enviar está cerrada y vive en el servidor</b>, no en el navegador. El navegador solo puede pedir lo que está en esa lista. Es lo que impide que un error en una pantalla mande un mensaje equivocado a miles de personas.</p>",
+                  en: "<p>The Italian tax identification code is computed from surname, first name, date of birth, sex and town of birth, and carries a check character at the end. That makes it an unusual thing: <b>a piece of data that validates itself and can be read backwards.</b></p><p>It got used for two things it wasn't meant for. The old archive stored surname and first name in a single field, and with three words there are two possible splits and both look reasonable. By testing each split against the code, <b>the data itself says which one is right</b>: it resolved over 70% of cases with no human intervention, and uncovered records where first name and surname had been swapped from the start.</p><p>The second: the date of birth didn't exist in the old archive, but it's inside the code. Decoding it recovered hundreds of dates of birth from data that was already there and that nobody had read.</p><p>To validate it I didn't trust my own judgement: I reconstructed the input data from each record's code, recomputed it and compared. It matched on 98% of more than sixteen hundred cases. The rest were errors in the original archive, including codes that were mistyped from day one.</p><p>But the design decision I'm happiest with is a duller one: <b>the list of messages that can be sent is closed and lives on the server</b>, not in the browser. The browser can only ask for what's on that list. That's what stops a bug on one screen from sending the wrong message to thousands of people.</p>" },
+        { k: "wrong", es: "<p><b>«Enviado» no significa «recibido», y la diferencia era enorme.</b> La plataforma responde «aceptado» en cuanto recoge el mensaje; si luego no llega, te enteras minutos después por otro canal. Durante un tiempo la pantalla decía «enviados» y daba una cifra varias veces mayor que la real. Ahora distingue las dos cosas con dos etiquetas separadas.</p><p><b>Un botón que no hace nada es peor que no tener el botón.</b> Había tres botones llamados «recordatorio» y solo dos funcionaban. Había una campana de notificaciones con un punto rojo que decía «3» siempre, con el archivo vacío o lleno: un número inventado. Y un interruptor que prometía avisar 24 horas antes sin que existiera nada que avisara. Todo eso se quitó.</p><p><b>Una frase puede ser verdad y leerse como una mentira.</b> Un contador decía «nuevos pacientes este mes» con una cifra enorme. Era cierto: se habían creado ese mes, porque ese mes fue el de la importación. Cualquiera lo leería como que habían llegado de golpe. Se cambió el nombre del contador, no el cálculo.</p><p><b>Y el más incómodo, porque el fallo fue mío.</b> Una plantilla de mensaje llevaba una imagen en la cabecera, lo anoté en un comentario y después lo perdí de vista. Se envió sin la imagen: treinta rechazos seguidos, y entonces el proveedor suspendió el envío y tumbó todos los restantes. Ninguno entregado, una sola causa. De ahí salió la regla que ahora está en el código: <b>un envío en bloque se detiene solo después de diez fallos consecutivos.</b> Cuando el error afecta a todos y no a uno, insistir no entrega nada y quema la reputación del número.</p>",
+                  en: "<p><b>\"Sent\" doesn't mean \"delivered\", and the gap was huge.</b> The platform answers \"accepted\" the moment it takes the message; if it then fails to arrive, you find out minutes later through another channel. For a while the screen said \"sent\" and showed a figure several times the real one. It now separates the two with two distinct labels.</p><p><b>A button that does nothing is worse than no button.</b> There were three buttons called \"reminder\" and only two worked. There was a notification bell with a red dot that always said \"3\", whether the file was empty or full: an invented number. And a switch promising to warn 24 hours in advance with nothing behind it that warned. All of it was removed.</p><p><b>A sentence can be true and read like a lie.</b> A counter said \"new patients this month\" with a huge figure. It was true: they had been created that month, because that was the month of the import. Anyone would read it as an influx. The counter's name was changed, not the calculation.</p><p><b>And the most uncomfortable one, because the mistake was mine.</b> One message template carried an image in its header; I noted it in a comment and then lost sight of it. It went out without the image: thirty rejections in a row, at which point the provider suspended the send and killed all the rest. None delivered, one single cause. That's where the rule now in the code came from: <b>a bulk send stops itself after ten consecutive failures.</b> When the error affects everyone rather than one person, insisting delivers nothing and burns the number's reputation.</p>" },
+        { k: "state", es: "<p>Funcionando con datos reales: el archivo completo de pacientes está cargado, los avisos por WhatsApp salen de verdad y se envió una circular a toda la base. Hay un segundo despliegue en preparación para otra clínica, partiendo del mismo código y sin ningún dato del primero.</p>",
+                  en: "<p>Running with real data: the full patient archive is loaded, the WhatsApp reminders genuinely go out, and a broadcast was sent to the whole base. A second deployment is in preparation for another clinic, starting from the same code and with none of the first one's data.</p>" }
+      ],
+      note: {
+        es: "Publicado con el permiso de la clínica. Sin nombre, sin ubicación, sin cifras de negocio y sin un solo dato de ningún paciente.",
+        en: "Published with the clinic's permission. No name, no location, no business figures, and not a single piece of any patient's data."
+      }
+    },
+    {
+      id: "transcriber",
+      name: { es: "Un transcriptor de vídeo en local", en: "A local video transcriber" },
+      chip: "live",
+      status: { es: "Funcionando", en: "Working" },
+      lead: {
+        es: "Me cansé de ver una hora de clase grabada para localizar los dos minutos que me hacían falta. Ahora cualquier vídeo de YouTube se convierte en texto que puedo buscar, en mi propio ordenador, aunque el vídeo no tenga subtítulos.",
+        en: "I got tired of watching an hour of recorded class to find the two minutes I actually needed. Now any YouTube video turns into text I can search, on my own machine, even when the video has no subtitles."
+      },
+      rows: [
+        { k: "problem", es: "<p>No puedes buscar dentro de un vídeo como buscas dentro de un texto. Antes, o veías el vídeo entero tomando notas, o te peleabas con los subtítulos automáticos, que muchas veces no existen o vienen sin puntuación. La alternativa eran servicios de pago en la nube, con límite de minutos y subiendo el audio a un tercero.</p>",
+                  en: "<p>You can't search inside a video the way you search inside text. Before, you either watched the whole thing taking notes, or fought with the automatic subtitles, which often don't exist or come with no punctuation. The alternative was paid cloud services, with a minute limit and your audio uploaded to a third party.</p>" },
+        { k: "how", es: "<p>Tres piezas: una descarga el audio del vídeo, otra lo convierte al formato que necesita el reconocedor, y un modelo de reconocimiento de voz lo pasa a texto usando la tarjeta gráfica.</p><p>La IA hace <b>una sola cosa</b>: transcribir audio a palabras. No resume, no interpreta, no verifica y no corrige errores de quien habla. Antes de transcribir intenta reutilizar los subtítulos del autor si existen y son buenos, porque siempre serán mejores que cualquier reconocimiento automático.</p>",
+                  en: "<p>Three pieces: one downloads the video's audio, another converts it to the format the recogniser needs, and a speech recognition model turns it into text using the graphics card.</p><p>The AI does <b>one single thing</b>: turn audio into words. It doesn't summarise, interpret, verify or correct the speaker's mistakes. Before transcribing it tries to reuse the author's own subtitles if they exist and are good, because those will always beat automatic recognition.</p>" },
+        { k: "best", es: "<p>Un fallo que se disfrazaba de éxito. La comprobación de «¿funciona la tarjeta gráfica?» daba que sí, y luego la transcripción reventaba. El motivo: cargar el modelo no llega a tocar las librerías de la GPU — eso solo pasa al procesar audio de verdad —, así que la prueba pasaba sin probar nada. Y la función que preparaba esas librerías fallaba en silencio.</p><p>La lección vale para casi todo: <b>una comprobación que no ejerce el camino real no es una comprobación.</b></p>",
+                  en: "<p>A failure disguised as a success. The \"is the graphics card working?\" check said yes, and then the transcription blew up. The reason: loading the model never touches the GPU libraries — that only happens when you process real audio — so the check passed without checking anything. And the function that set those libraries up was failing silently.</p><p>The lesson applies almost everywhere: <b>a check that doesn't exercise the real path isn't a check.</b></p>" },
+        { k: "wrong", es: "<p>La mayor parte del tiempo no se va en lo interesante. La primera ejecución tardó casi una hora, y casi toda fue descargar el modelo (unos 3 GB, una sola vez) con una red irregular. Aprendí a distinguir «está colgado» de «va lento»: llegué a medir 0 bytes por segundo durante medio minuto y aun así seguía avanzando.</p><p>Y que la herramienta tiene un techo honesto: probé un vídeo que resultó ser una demostración con música y sin narración, y no había nada que transcribir. No es un fallo. Si nadie habla, no hay texto.</p>",
+                  en: "<p>Most of the time doesn't go into the interesting part. The first run took almost an hour, and nearly all of it was downloading the model (about 3 GB, once) over a flaky connection. I learned to tell \"it's frozen\" from \"it's slow\": I measured 0 bytes per second for half a minute and it was still making progress.</p><p>And the tool has an honest ceiling: I tried a video that turned out to be a demo with music and no narration, and there was nothing to transcribe. That isn't a bug. If nobody speaks, there's no text.</p>" },
+        { k: "state", es: "<p>Funcionando y probado de punta a punta en un equipo con GPU. Lo uso yo, sobre vídeos de clase. No está empaquetado para que lo instale otra persona ni tiene interfaz: se ejecuta por línea de comandos.</p><p>Aviso honesto sobre este: <b>la mayor parte no la construí yo.</b> El grueso viene de una herramienta que ya existía; mi aportación fue montar el entorno y arreglar el fallo del apartado anterior. Lo digo porque presentarlo como un desarrollo propio sería falso, y porque el fallo que encontré me parece más interesante que el programa.</p>",
+                  en: "<p>Working and tested end to end on a machine with a GPU. I use it myself, on recorded classes. It isn't packaged for anyone else to install and it has no interface: it runs from the command line.</p><p>An honest note on this one: <b>most of it I didn't build.</b> The bulk comes from a tool that already existed; my contribution was setting up the environment and fixing the failure described above. I say so because presenting it as my own development would be false, and because the bug I found is more interesting than the program.</p>" }
+      ]
+    },
+    {
+      id: "this-page",
+      name: { es: "Esta misma página", en: "This very page" },
+      chip: "none",
+      status: { es: "Cerrada", en: "Closed" },
+      lead: {
+        es: "Preguntar a desconocidos qué les gustaría que existiera. Cero respuestas. También es un resultado, y por eso está en la lista.",
+        en: "Asking strangers what they'd like to exist. Zero answers. That's a result too, and that's why it's on the list."
+      },
+      rows: [
+        { k: "problem", es: "<p>Tengo herramientas capaces de construir casi cualquier cosa y una sola cabeza para pensar qué construir. No soy experto en todos los campos del mundo, pero mucha gente lo es en el suyo. La idea era pedirles la pregunta, no la respuesta.</p>",
+                  en: "<p>I have tools that can build almost anything and one single head to think of what to build. I'm not an expert in every field in the world, but plenty of people are experts in theirs. The idea was to ask them for the question, not the answer.</p>" },
+        { k: "how", es: "<p>Una página estática, sin cuentas y sin login, con un formulario que llega a mi correo a través de un servicio intermediario. Tres casillas separadas para que el aportante decidiera qué se publicaba y qué no. Enlazada desde un único post.</p>",
+                  en: "<p>A static page, no accounts and no login, with a form that reaches my inbox through an intermediary service. Three separate checkboxes so the contributor decided what got published and what didn't. Linked from a single post.</p>" },
+        { k: "wrong", es: "<p>Cero envíos en dos semanas. La lectura cómoda sería culpar a la red social. La honesta es otra: un post de alguien que casi no publica llega a poca gente, pedí trabajo real a cambio de nada inmediato, y lo pedí una sola vez sin recordar que seguía abierto.</p><p>Si lo repitiera: recordarlo a mitad de plazo, y bajar el listón de lo que cuenta como idea. «Escribe una idea» suena a deberes; «dime qué te molesta de tu trabajo» no.</p>",
+                  en: "<p>Zero submissions in two weeks. The comfortable reading would be to blame the social network. The honest one is different: a post from someone who barely publishes reaches few people, I asked for real work in return for nothing immediate, and I asked once without ever reminding anyone it was still open.</p><p>If I did it again: a reminder halfway through, and a lower bar for what counts as an idea. \"Write an idea\" sounds like homework; \"tell me what annoys you about your job\" doesn't.</p>" },
+        { k: "state", es: "<p>Cerrada el 30 de septiembre de 2026, como estaba prometido. Cumplir la parte de volver a contarlo me parecía más importante que el número.</p>",
+                  en: "<p>Closed on 30 September 2026, as promised. Keeping the part about coming back to report seemed more important to me than the number.</p>" }
+      ]
+    }
+  ];
+
   var root = document.documentElement;
   var buttons = document.querySelectorAll(".langs button");
+  var esc = function (s) { return s; };
 
-  function apply(lang) {
-    document.querySelectorAll("[data-es]").forEach(function (el) {
-      var v = el.getAttribute("data-" + lang);
-      if (v !== null) el.textContent = v;
-    });
-    document.querySelectorAll("[data-es-ph]").forEach(function (el) {
-      var v = el.getAttribute("data-" + lang + "-ph");
-      if (v !== null) el.setAttribute("placeholder", v);
-    });
-    buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.lang === lang)); });
+  function render(lang) {
     root.setAttribute("lang", lang);
-    document.title = lang === "es" ? "Idear por el gusto de idear" : "Ideas for the sake of having them";
+    document.title = T.title[lang];
+
+    document.getElementById("t-tag").textContent = T.tag[lang];
+    document.getElementById("t-title").textContent = T.title[lang];
+    document.getElementById("t-question").textContent = T.question[lang];
+    document.getElementById("toc-h").textContent = T.toc[lang];
+    document.getElementById("t-closing-h").textContent = T.closingH[lang];
+    document.getElementById("t-foot").textContent = T.foot[lang];
+
+    document.getElementById("t-lede").innerHTML =
+      T.lede[lang].map(function (p) { return '<p class="' + p[0] + '">' + esc(p[1]) + "</p>"; }).join("");
+
+    document.getElementById("t-after").innerHTML =
+      T.after[lang].map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("");
+
+    document.getElementById("t-closing").innerHTML =
+      T.closing[lang].map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("");
+
+    document.getElementById("t-toc").innerHTML = P.map(function (p) {
+      return '<li><a href="#' + p.id + '">' + esc(p.name[lang]) + "</a></li>";
+    }).join("");
+
+    document.getElementById("projects").innerHTML = P.map(function (p) {
+      var rows = p.rows.map(function (r) {
+        return '<div class="row"><dt>' + esc(T.labels[r.k][lang]) + "</dt><dd>" + r[lang] + "</dd></div>";
+      }).join("");
+      var note = p.note ? '<p class="disclaimer">' + esc(p.note[lang]) + "</p>" : "";
+
+      var shots = "";
+      if (p.imgs) {
+        shots = '<div class="shots">' + p.imgs.map(function (im) {
+          return '<figure class="shot"><img src="' + im.src + '" width="' + im.w + '" height="' + im.h +
+                 '" loading="lazy" decoding="async" alt="' + esc(im.alt[lang]) + '">' +
+                 "<figcaption>" + esc(im.cap[lang]) + "</figcaption></figure>";
+        }).join("") + "</div>";
+      }
+
+      var embed = "";
+      if (p.embed) {
+        embed = '<div class="embed"><div class="embed-head"><p>' + esc(p.embed.intro[lang]) + "</p>" +
+                '<a href="' + p.embed.src + '" target="_blank" rel="noopener">' + esc(p.embed.open[lang]) + "</a></div>" +
+                '<iframe src="' + p.embed.src + '" title="' + esc(p.embed.title[lang]) + '" loading="lazy"></iframe></div>';
+      }
+
+      return '<article class="card" id="' + p.id + '">' +
+             '<div class="card-head"><h3>' + esc(p.name[lang]) + "</h3>" +
+             '<span class="chip ' + p.chip + '">' + esc(p.status[lang]) + "</span></div>" +
+             '<p class="lead">' + esc(p.lead[lang]) + "</p>" + embed + shots +
+             '<dl class="rows">' + rows + "</dl>" + note + "</article>";
+    }).join("");
+
+    buttons.forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+    });
   }
-  function isES() { return root.getAttribute("lang") === "es"; }
 
   buttons.forEach(function (b) {
-    b.addEventListener("click", function () { apply(b.dataset.lang); });
-  });
-  apply("en");
-
-  var ta = document.getElementById("idea");
-  var counter = document.getElementById("counter");
-  ta.addEventListener("input", function () {
-    counter.textContent = String(ta.value.length);
-    ta.classList.remove("invalid");
+    b.addEventListener("click", function () { render(b.dataset.lang); });
   });
 
-  var form = document.getElementById("idea-form");
-  var btn = document.getElementById("send");
-  var note = document.getElementById("note");
-
-  function say(msg) { note.textContent = msg; note.hidden = false; }
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    note.hidden = true;
-
-    if (!ta.value.trim()) {
-      ta.classList.add("invalid");
-      ta.focus();
-      say(isES() ? "Escribe tu idea antes de enviar." : "Write your idea before sending.");
-      return;
-    }
-
-    var fd = new FormData(form);
-    var payload = {
-      access_key: ACCESS_KEY,
-      subject: "Nueva idea — " + (fd.get("campo") || (isES() ? "sin campo" : "no field")),
-      from_name: "Idear por el gusto de idear",
-      idea: fd.get("idea"),
-      campo: fd.get("campo") || "—",
-      nombre: fd.get("nombre") || (isES() ? "(anónimo)" : "(anonymous)"),
-      contacto: fd.get("contacto") || "—",
-      publicar_idea: fd.get("publicar_idea") || "No",
-      publicar_contacto: fd.get("publicar_contacto") || "No",
-      permite_contacto: fd.get("permite_contacto") || "No",
-      idioma: isES() ? "ES" : "EN",
-      botcheck: fd.get("botcheck") ? true : false
-    };
-
-    btn.disabled = true;
-    btn.textContent = isES() ? "Enviando…" : "Sending…";
-
-    fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify(payload)
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (data && data.success) {
-          document.body.classList.add("sent");
-          document.getElementById("thanks").scrollIntoView({ behavior: "smooth", block: "center" });
-        } else {
-          throw new Error("web3forms");
-        }
-      })
-      .catch(function () {
-        btn.disabled = false;
-        btn.textContent = isES() ? "Enviar idea" : "Send idea";
-        say(isES()
-          ? "No se ha podido enviar. Inténtalo otra vez, o escríbeme por LinkedIn y me la cuentas por ahí."
-          : "It couldn't be sent. Try again, or write to me on LinkedIn and tell me there.");
-      });
-  });
+  render("en");
 })();
 </script>
 </body>
